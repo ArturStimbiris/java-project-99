@@ -3,7 +3,7 @@
 [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=ArturStimbiris_java-project-99&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ArturStimbiris_java-project-99)
 
 ### Demo
-https://your-app-name.onrender.com/welcome
+https://java-project-99-8dn6.onrender.com
 
 ### Description
 Java Task Manager for Spring Boot
