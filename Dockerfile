@@ -1,9 +1,25 @@
-FROM gradle:8.7.0-jdk21
+FROM eclipse-temurin:21-jdk
 
-WORKDIR /app
+ARG GRADLE_VERSION=8.7
 
-COPY /app .
+RUN apt-get update && apt-get install -yq unzip
 
-RUN gradle installDist
+RUN wget -q https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
+    && unzip gradle-${GRADLE_VERSION}-bin.zip \
+    && rm gradle-${GRADLE_VERSION}-bin.zip
 
-CMD ./build/install/app/bin/app
+ENV GRADLE_HOME=/opt/gradle
+
+RUN mv gradle-${GRADLE_VERSION} ${GRADLE_HOME}
+
+ENV PATH=$PATH:$GRADLE_HOME/bin
+
+WORKDIR .
+
+COPY . .
+
+RUN gradle bootJar
+
+ENV PORT=$PORT
+
+ENTRYPOINT ["java","-jar","/build/libs/app-0.0.1-SNAPSHOT.jar","--spring.profiles.active=production"]
