@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DataInitializer implements ApplicationRunner {
+
     @Autowired
     private UserRepository userRepository;
 
@@ -22,9 +23,8 @@ public class DataInitializer implements ApplicationRunner {
             User user = new User();
             user.setEmail("hexlet@example.com");
             user.setPassword(passwordEncoder.encode("qwerty"));
-            user.setFirstName("Admin");
-            user.setLastName("Adminov");
             userRepository.save(user);
         }
     }
 }
+

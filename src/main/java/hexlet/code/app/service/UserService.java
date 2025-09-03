@@ -11,9 +11,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
+
     @Autowired
     private UserRepository userRepository;
 
@@ -24,36 +26,47 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     public List<UserDTO> getAll() {
-        return userRepository.findAll().stream()
-                .map(userMapper::toDTO)
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(userMapper::map)
                 .toList();
     }
 
-    public UserDTO getById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return userMapper.toDTO(user);
+    public UserDTO create(UserCreateDTO userCreateDTO) {
+        User user = userMapper.map(userCreateDTO);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user = userRepository.save(user);
+        return userMapper.map(user);
     }
 
-    public UserDTO create(UserCreateDTO data) {
-        User user = userMapper.toEntity(data);
-        user.setPassword(passwordEncoder.encode(data.getPassword()));
-        userRepository.save(user);
-        return userMapper.toDTO(user);
-    }
-
-    public UserDTO update(Long id, UserUpdateDTO data) {
+    public UserDTO findById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        userMapper.updateEntity(data, user);
-        if (data.getPassword() != null) {
-            user.setPassword(passwordEncoder.encode(data.getPassword()));
+        return userMapper.map(user);
+    }
+
+    public UserDTO update(Long id, UserUpdateDTO userUpdateDTO) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        userMapper.update(userUpdateDTO, user);
+        if (userUpdateDTO.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(userUpdateDTO.getPassword()));
         }
-        userRepository.save(user);
-        return userMapper.toDTO(user);
+        user = userRepository.save(user);
+        return userMapper.map(user);
     }
 
     public void delete(Long id) {
         userRepository.deleteById(id);
+    }
+
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public String findEmailById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"))
+                .getEmail();
     }
 }

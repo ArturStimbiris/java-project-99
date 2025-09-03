@@ -1,20 +1,25 @@
 package hexlet.code.app.util;
 
-import org.instancio.Instancio;
-import org.instancio.Model;
-import org.instancio.Select;
-import org.springframework.stereotype.Component;
-
 import hexlet.code.app.model.User;
+import java.util.Random;
 
-@Component
 public class ModelGenerator {
-    public Model<User> getUserModel() {
-        return Instancio.of(User.class)
-                .ignore(Select.field(User::getId))
-                .supply(Select.field(User::getEmail), () -> "test" + System.currentTimeMillis() + "@example.com")
-                .supply(Select.field(User::getFirstName), () -> "Test")
-                .supply(Select.field(User::getLastName), () -> "Testov")
-                .toModel();
+    private static final Random RANDOM = new Random();
+    private static final String[] FIRST_NAMES = {"John", "Jane", "Alex", "Emily", "Michael", "Sarah"};
+    private static final String[] LAST_NAMES = {"Doe", "Smith", "Johnson", "Williams", "Brown", "Jones"};
+
+    public static User getUser() {
+        User user = new User();
+        user.setEmail(generateRandomEmail());
+        user.setFirstName(FIRST_NAMES[RANDOM.nextInt(FIRST_NAMES.length)]);
+        user.setLastName(LAST_NAMES[RANDOM.nextInt(LAST_NAMES.length)]);
+        user.setPassword(TestUtils.TEST_USER_PASSWORD);
+        return user;
+    }
+
+    private static String generateRandomEmail() {
+        String[] domains = {"gmail.com", "yahoo.com", "hotmail.com", "example.com"};
+        String name = "user" + RANDOM.nextInt(1000);
+        return name + "@" + domains[RANDOM.nextInt(domains.length)];
     }
 }

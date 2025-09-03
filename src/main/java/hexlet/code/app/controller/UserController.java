@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+
     @Autowired
     private UserService userService;
 
@@ -36,22 +38,24 @@ public class UserController {
 
     @GetMapping("/{id}")
     public UserDTO show(@PathVariable Long id) {
-        return userService.getById(id);
+        return userService.findById(id);
     }
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDTO create(@Valid @RequestBody UserCreateDTO data) {
-        return userService.create(data);
+    public UserDTO create(@Valid @RequestBody UserCreateDTO userCreateDTO) {
+        return userService.create(userCreateDTO);
     }
 
     @PutMapping("/{id}")
-    public UserDTO update(@Valid @RequestBody UserUpdateDTO data, @PathVariable Long id) {
-        return userService.update(id, data);
+    @PreAuthorize("hasAuthority('USER') and authentication.principal.username == @userService.findEmailById(#id)")
+    public UserDTO update(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO userUpdateDTO) {
+        return userService.update(id, userUpdateDTO);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('USER') and authentication.principal.username == @userService.findEmailById(#id)")
     public void destroy(@PathVariable Long id) {
         userService.delete(id);
     }
