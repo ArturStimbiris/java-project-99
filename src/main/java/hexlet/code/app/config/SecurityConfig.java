@@ -43,8 +43,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/api/login").permitAll()
-                        .requestMatchers("/", "/index.html", "/assets/**").permitAll()
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/", "/index.html", "/assets/**", "/sentry-test", "/sentry-test-2").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
