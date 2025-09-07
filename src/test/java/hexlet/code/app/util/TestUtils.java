@@ -43,7 +43,8 @@ public class TestUtils {
                 .andReturn();
 
         String responseBody = result.getResponse().getContentAsString();
-        return objectMapper.readTree(responseBody).get("token").asText();
+        // Извлекаем токен из JSON ответа
+        return responseBody.replaceAll(".*\"token\":\"([^\"]+)\".*", "$1");
     }
 
     public User createTestUser(String email, String password) {

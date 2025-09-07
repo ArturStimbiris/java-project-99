@@ -50,7 +50,9 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        return result.getResponse().getContentAsString();
+        String responseBody = result.getResponse().getContentAsString();
+        // Извлекаем токен из JSON ответа
+        return responseBody.replaceAll(".*\"token\":\"([^\"]+)\".*", "$1");
     }
 
     @BeforeEach
