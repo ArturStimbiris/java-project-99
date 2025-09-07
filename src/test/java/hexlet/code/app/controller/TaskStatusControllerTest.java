@@ -2,6 +2,7 @@ package hexlet.code.app.controller;
 
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.model.User;
+import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,6 +36,9 @@ public class TaskStatusControllerTest {
     private TaskStatusRepository taskStatusRepository;
 
     @Autowired
+    private TaskRepository taskRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -59,6 +63,7 @@ public class TaskStatusControllerTest {
 
     @BeforeEach
     void setUp() throws Exception {
+        taskRepository.deleteAll();
         taskStatusRepository.deleteAll();
         userRepository.deleteAll();
 

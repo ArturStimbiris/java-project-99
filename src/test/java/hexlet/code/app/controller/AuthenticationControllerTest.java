@@ -1,6 +1,7 @@
 package hexlet.code.app.controller;
 
 import hexlet.code.app.model.User;
+import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,10 +29,14 @@ public class AuthenticationControllerTest {
     private UserRepository userRepository;
 
     @Autowired
+    private TaskRepository taskRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @BeforeEach
     void setUp() {
+        taskRepository.deleteAll();
         userRepository.deleteAll();
         User user = new User();
         user.setEmail("admin@example.com");
@@ -48,7 +53,7 @@ public class AuthenticationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(credentials))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").isString()); // Изменено: проверяем поле token в JSON
+                .andExpect(jsonPath("$.token").isString());
     }
 
     @Test

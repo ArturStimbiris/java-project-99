@@ -5,6 +5,7 @@ import hexlet.code.app.dto.TaskStatusDTO;
 import hexlet.code.app.dto.TaskStatusUpdateDTO;
 import hexlet.code.app.mapper.TaskStatusMapper;
 import hexlet.code.app.model.TaskStatus;
+import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,9 @@ public class TaskStatusService {
 
     @Autowired
     private TaskStatusRepository taskStatusRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
 
     @Autowired
     private TaskStatusMapper taskStatusMapper;
@@ -39,6 +43,11 @@ public class TaskStatusService {
         return taskStatusMapper.map(taskStatus);
     }
 
+    public TaskStatus findByIdEntity(Long id) {
+        return taskStatusRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
+    }
+
     public TaskStatusDTO update(Long id, TaskStatusUpdateDTO taskStatusUpdateDTO) {
         TaskStatus taskStatus = taskStatusRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
@@ -48,6 +57,10 @@ public class TaskStatusService {
     }
 
     public void delete(Long id) {
+        long taskCount = taskRepository.countByTaskStatusId(id);
+        if (taskCount > 0) {
+            throw new RuntimeException("Cannot delete task status with associated tasks");
+        }
         taskStatusRepository.deleteById(id);
     }
 

@@ -1,8 +1,12 @@
 package hexlet.code.app.controller;
 
+import hexlet.code.app.model.Task;
+import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.model.User;
 import hexlet.code.app.repository.TaskRepository;
+import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -26,16 +28,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-public class UserControllerTest {
+public class TaskControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private UserRepository userRepository;
+    private TaskRepository taskRepository;
 
     @Autowired
-    private TaskRepository taskRepository;
+    private TaskStatusRepository taskStatusRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -44,10 +49,12 @@ public class UserControllerTest {
     private ObjectMapper objectMapper;
 
     private String token;
+    private User testUser;
+    private TaskStatus testStatus;
 
     private String getToken(String email, String password) throws Exception {
         String credentials = "{\"username\":\"" + email + "\",\"password\":\"" + password + "\"}";
-        MvcResult result = mockMvc.perform(post("/api/login")
+        var result = mockMvc.perform(post("/api/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(credentials))
                 .andExpect(status().isOk())
@@ -60,72 +67,105 @@ public class UserControllerTest {
     @BeforeEach
     void setUp() throws Exception {
         taskRepository.deleteAll();
+        taskStatusRepository.deleteAll();
         userRepository.deleteAll();
-        User user = new User();
-        user.setEmail("admin@example.com");
-        user.setPassword(passwordEncoder.encode("password"));
-        user.setFirstName("Admin");
-        user.setLastName("User");
-        userRepository.save(user);
+
+        testUser = new User();
+        testUser.setEmail("admin@example.com");
+        testUser.setPassword(passwordEncoder.encode("password"));
+        testUser.setFirstName("Admin");
+        testUser.setLastName("User");
+        userRepository.save(testUser);
+
+        testStatus = new TaskStatus();
+        testStatus.setName("Test Status");
+        testStatus.setSlug("test_status");
+        taskStatusRepository.save(testStatus);
 
         token = getToken("admin@example.com", "password");
     }
 
     @Test
     void testIndex() throws Exception {
-        mockMvc.perform(get("/api/users")
+        Task task = new Task();
+        task.setTitle("Test Task");
+        task.setContent("Test Content");
+        task.setTaskStatus(testStatus);
+        task.setAssignee(testUser);
+        taskRepository.save(task);
+
+        mockMvc.perform(get("/api/tasks")
                 .header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].title").value("Test Task"));
     }
 
     @Test
     void testShow() throws Exception {
-        User user = userRepository.findByEmail("admin@example.com").get();
+        Task task = new Task();
+        task.setTitle("Test Task");
+        task.setContent("Test Content");
+        task.setTaskStatus(testStatus);
+        task.setAssignee(testUser);
+        taskRepository.save(task);
 
-        mockMvc.perform(get("/api/users/{id}", user.getId())
+        mockMvc.perform(get("/api/tasks/{id}", task.getId())
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("admin@example.com"));
+                .andExpect(jsonPath("$.title").value("Test Task"));
     }
 
     @Test
     void testCreate() throws Exception {
-        String userData
-            = "{\"email\":\"test@example.com\",\"password\":\"password\",\"firstName\":\"Test\",\"lastName\":\"User\"}";
+        String taskData = "{\"title\":\"New Task\",\"content\":\"New Content\",\"taskStatusId\":"
+        + testStatus.getId() + ",\"assigneeId\":" + testUser.getId() + "}";
 
-        mockMvc.perform(post("/api/users")
+        mockMvc.perform(post("/api/tasks")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(userData)
+                .content(taskData)
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isCreated());
 
-        User user = userRepository.findByEmail("test@example.com").get();
-        assertThat(user).isNotNull();
+        Task task = taskRepository.findAll().get(0);
+        assertThat(task).isNotNull();
+        assertThat(task.getTitle()).isEqualTo("New Task");
     }
 
     @Test
     void testUpdate() throws Exception {
-        User user = userRepository.findByEmail("admin@example.com").get();
-        String updateData = "{\"email\":\"new@example.com\",\"firstName\":\"New\",\"lastName\":\"Name\"}";
+        Task task = new Task();
+        task.setTitle("Old Task");
+        task.setContent("Old Content");
+        task.setTaskStatus(testStatus);
+        task.setAssignee(testUser);
+        taskRepository.save(task);
 
-        mockMvc.perform(put("/api/users/{id}", user.getId())
+        String updateData = "{\"title\":\"Updated Task\"}";
+
+        mockMvc.perform(put("/api/tasks/{id}", task.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updateData)
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());
 
-        User updatedUser = userRepository.findById(user.getId()).get();
-        assertThat(updatedUser.getEmail()).isEqualTo("new@example.com");
+        Task updatedTask = taskRepository.findById(task.getId()).orElse(null);
+        assertThat(updatedTask).isNotNull();
+        assertThat(updatedTask.getTitle()).isEqualTo("Updated Task");
     }
 
     @Test
     void testDestroy() throws Exception {
-        User user = userRepository.findByEmail("admin@example.com").get();
+        Task task = new Task();
+        task.setTitle("Test Task");
+        task.setContent("Test Content");
+        task.setTaskStatus(testStatus);
+        task.setAssignee(testUser);
+        taskRepository.save(task);
 
-        mockMvc.perform(delete("/api/users/{id}", user.getId())
+        mockMvc.perform(delete("/api/tasks/{id}", task.getId())
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNoContent());
 
-        assertThat(userRepository.existsById(user.getId())).isFalse();
+        assertThat(taskRepository.existsById(task.getId())).isFalse();
     }
 }

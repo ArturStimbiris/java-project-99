@@ -1,7 +1,9 @@
 package hexlet.code.app.config;
 
+import hexlet.code.app.model.Task;
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.model.User;
+import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,33 +22,56 @@ public class DataInitializer implements ApplicationRunner {
     private TaskStatusRepository taskStatusRepository;
 
     @Autowired
+    private TaskRepository taskRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        User user = null;
         if (userRepository.findByEmail("hexlet@example.com").isEmpty()) {
-            User user = new User();
+            user = new User();
             user.setEmail("hexlet@example.com");
             user.setPassword(passwordEncoder.encode("qwerty"));
             user.setFirstName("Hexlet");
             user.setLastName("User");
-            userRepository.save(user);
+            user = userRepository.save(user);
+        } else {
+            user = userRepository.findByEmail("hexlet@example.com").get();
         }
 
-        // Добавляем дефолтные статусы
-        addDefaultStatus("Draft", "draft");
-        addDefaultStatus("ToReview", "to_review");
-        addDefaultStatus("ToBeFixed", "to_be_fixed");
-        addDefaultStatus("ToPublish", "to_publish");
-        addDefaultStatus("Published", "published");
+        TaskStatus draft = addDefaultStatus("Draft", "draft");
+        TaskStatus toReview = addDefaultStatus("ToReview", "to_review");
+        TaskStatus toBeFixed = addDefaultStatus("ToBeFixed", "to_be_fixed");
+        TaskStatus toPublish = addDefaultStatus("ToPublish", "to_publish");
+        TaskStatus published = addDefaultStatus("Published", "published");
+
+        if (taskRepository.count() == 0) {
+            Task task1 = new Task();
+            task1.setTitle("First task");
+            task1.setIndex(1);
+            task1.setContent("This is the first task");
+            task1.setTaskStatus(draft);
+            task1.setAssignee(user);
+            taskRepository.save(task1);
+
+            Task task2 = new Task();
+            task2.setTitle("Second task");
+            task2.setIndex(2);
+            task2.setContent("This is the second task");
+            task2.setTaskStatus(toReview);
+            task2.setAssignee(user);
+            taskRepository.save(task2);
+        }
     }
 
-    private void addDefaultStatus(String name, String slug) {
-        if (taskStatusRepository.findBySlug(slug).isEmpty()) {
+    private TaskStatus addDefaultStatus(String name, String slug) {
+        return taskStatusRepository.findBySlug(slug).orElseGet(() -> {
             TaskStatus status = new TaskStatus();
             status.setName(name);
             status.setSlug(slug);
-            taskStatusRepository.save(status);
-        }
+            return taskStatusRepository.save(status);
+        });
     }
 }

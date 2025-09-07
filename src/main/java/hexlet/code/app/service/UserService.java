@@ -5,6 +5,7 @@ import hexlet.code.app.dto.UserDTO;
 import hexlet.code.app.dto.UserUpdateDTO;
 import hexlet.code.app.mapper.UserMapper;
 import hexlet.code.app.model.User;
+import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +19,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
 
     @Autowired
     private UserMapper userMapper;
@@ -45,6 +49,11 @@ public class UserService {
         return userMapper.map(user);
     }
 
+    public User findByIdEntity(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
     public UserDTO update(Long id, UserUpdateDTO userUpdateDTO) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -57,6 +66,10 @@ public class UserService {
     }
 
     public void delete(Long id) {
+        long taskCount = taskRepository.countByAssigneeId(id);
+        if (taskCount > 0) {
+            throw new RuntimeException("Cannot delete user with assigned tasks");
+        }
         userRepository.deleteById(id);
     }
 
