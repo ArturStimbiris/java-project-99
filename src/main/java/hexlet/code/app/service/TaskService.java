@@ -27,6 +27,13 @@ public class TaskService {
                 .toList();
     }
 
+    public List<TaskDTO> getWithFilters(String titleCont, Long assigneeId, String status, Long labelId) {
+        List<Task> tasks = taskRepository.findByFilters(titleCont, assigneeId, status, labelId);
+        return tasks.stream()
+                .map(taskMapper::map)
+                .toList();
+    }
+
     public TaskDTO create(TaskCreateDTO taskCreateDTO) {
         Task task = taskMapper.map(taskCreateDTO);
         task = taskRepository.save(task);
