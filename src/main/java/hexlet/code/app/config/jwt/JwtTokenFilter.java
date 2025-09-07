@@ -40,7 +40,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
-            
             // Попробуем извлечь токен из JSON, если обычный парсинг не удался
             try {
                 username = jwtUtils.extractUsername(jwt);
