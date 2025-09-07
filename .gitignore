@@ -40,3 +40,4 @@ out/
 node_modules/
 
 .continue/
+.sonarlint/

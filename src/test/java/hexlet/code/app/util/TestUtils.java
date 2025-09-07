@@ -9,7 +9,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.app.model.User;
+import hexlet.code.app.model.Label;
 import hexlet.code.app.repository.UserRepository;
+import hexlet.code.app.repository.LabelRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -27,6 +29,9 @@ public class TestUtils {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private LabelRepository labelRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -52,5 +57,11 @@ public class TestUtils {
         user.setFirstName("Test");
         user.setLastName("User");
         return userRepository.save(user);
+    }
+
+    public Label createTestLabel(String name) {
+        Label label = new Label();
+        label.setName(name);
+        return labelRepository.save(label);
     }
 }

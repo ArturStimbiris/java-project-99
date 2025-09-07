@@ -4,10 +4,13 @@ import hexlet.code.app.dto.TaskCreateDTO;
 import hexlet.code.app.dto.TaskDTO;
 import hexlet.code.app.dto.TaskUpdateDTO;
 import hexlet.code.app.model.Task;
+import hexlet.code.app.service.LabelService;
 import hexlet.code.app.service.TaskStatusService;
 import hexlet.code.app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.stream.Collectors;
 
 @Component
 public class TaskMapper {
@@ -17,6 +20,9 @@ public class TaskMapper {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private LabelService labelService;
 
     public TaskDTO map(Task task) {
         TaskDTO taskDTO = new TaskDTO();
@@ -29,6 +35,11 @@ public class TaskMapper {
         if (task.getAssignee() != null) {
             taskDTO.setAssigneeId(task.getAssignee().getId());
         }
+        if (task.getLabels() != null) {
+            taskDTO.setLabelIds(task.getLabels().stream()
+                    .map(label -> label.getId())
+                    .collect(Collectors.toSet()));
+        }
         return taskDTO;
     }
 
@@ -40,6 +51,11 @@ public class TaskMapper {
         task.setTaskStatus(taskStatusService.findByIdEntity(taskCreateDTO.getTaskStatusId()));
         if (taskCreateDTO.getAssigneeId() != null) {
             task.setAssignee(userService.findByIdEntity(taskCreateDTO.getAssigneeId()));
+        }
+        if (taskCreateDTO.getLabelIds() != null) {
+            task.setLabels(taskCreateDTO.getLabelIds().stream()
+                    .map(labelId -> labelService.findByIdEntity(labelId))
+                    .collect(Collectors.toSet()));
         }
         return task;
     }
@@ -59,6 +75,11 @@ public class TaskMapper {
         }
         if (taskUpdateDTO.getAssigneeId() != null) {
             task.setAssignee(userService.findByIdEntity(taskUpdateDTO.getAssigneeId()));
+        }
+        if (taskUpdateDTO.getLabelIds() != null) {
+            task.setLabels(taskUpdateDTO.getLabelIds().stream()
+                    .map(labelId -> labelService.findByIdEntity(labelId))
+                    .collect(Collectors.toSet()));
         }
     }
 }

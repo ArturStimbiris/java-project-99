@@ -1,0 +1,148 @@
+package hexlet.code.app.controller;
+
+import hexlet.code.app.AppApplication;
+import hexlet.code.app.model.Label;
+import hexlet.code.app.model.User;
+import hexlet.code.app.repository.LabelRepository;
+import hexlet.code.app.repository.TaskRepository;
+import hexlet.code.app.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.assertj.core.api.Assertions.assertThat;
+
+@ActiveProfiles("test")
+@SpringBootTest(classes = AppApplication.class)
+@AutoConfigureMockMvc
+public class LabelControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private LabelRepository labelRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    private String token;
+
+    private String getToken(String email, String password) throws Exception {
+        String credentials = "{\"username\":\"" + email + "\",\"password\":\"" + password + "\"}";
+        MvcResult result = mockMvc.perform(post("/api/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(credentials))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        return result.getResponse().getContentAsString();
+    }
+
+    @BeforeEach
+    void setUp() throws Exception {
+        taskRepository.deleteAll();
+        labelRepository.deleteAll();
+        userRepository.deleteAll();
+
+        // Создаем пользователя
+        User user = new User();
+        user.setEmail("admin@example.com");
+        user.setPassword(passwordEncoder.encode("password"));
+        user.setFirstName("Admin");
+        user.setLastName("User");
+        userRepository.save(user);
+
+        token = getToken("admin@example.com", "password");
+    }
+
+    @Test
+    void testIndex() throws Exception {
+        Label label = new Label();
+        label.setName("Test Label");
+        labelRepository.save(label);
+
+        mockMvc.perform(get("/api/labels")
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Test Label"));
+    }
+
+    @Test
+    void testShow() throws Exception {
+        Label label = new Label();
+        label.setName("Test Label");
+        labelRepository.save(label);
+
+        mockMvc.perform(get("/api/labels/{id}", label.getId())
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Test Label"));
+    }
+
+    @Test
+    void testCreate() throws Exception {
+        String labelData = "{\"name\":\"New Label\"}";
+
+        mockMvc.perform(post("/api/labels")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(labelData)
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isCreated());
+
+        Label label = labelRepository.findByName("New Label").orElse(null);
+        assertThat(label).isNotNull();
+        assertThat(label.getName()).isEqualTo("New Label");
+    }
+
+    @Test
+    void testUpdate() throws Exception {
+        Label label = new Label();
+        label.setName("Old Label");
+        labelRepository.save(label);
+
+        String updateData = "{\"name\":\"Updated Label\"}";
+
+        mockMvc.perform(put("/api/labels/{id}", label.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(updateData)
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+
+        Label updatedLabel = labelRepository.findById(label.getId()).orElse(null);
+        assertThat(updatedLabel).isNotNull();
+        assertThat(updatedLabel.getName()).isEqualTo("Updated Label");
+    }
+
+    @Test
+    void testDestroy() throws Exception {
+        Label label = new Label();
+        label.setName("Test Label");
+        labelRepository.save(label);
+
+        mockMvc.perform(delete("/api/labels/{id}", label.getId())
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNoContent());
+
+        assertThat(labelRepository.existsById(label.getId())).isFalse();
+    }
+}

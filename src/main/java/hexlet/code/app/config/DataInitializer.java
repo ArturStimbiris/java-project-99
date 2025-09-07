@@ -3,9 +3,11 @@ package hexlet.code.app.config;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.model.User;
+import hexlet.code.app.model.Label;
 import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.repository.UserRepository;
+import hexlet.code.app.repository.LabelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -23,6 +25,9 @@ public class DataInitializer implements ApplicationRunner {
 
     @Autowired
     private TaskRepository taskRepository;
+
+    @Autowired
+    private LabelRepository labelRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -46,6 +51,9 @@ public class DataInitializer implements ApplicationRunner {
         TaskStatus toBeFixed = addDefaultStatus("ToBeFixed", "to_be_fixed");
         TaskStatus toPublish = addDefaultStatus("ToPublish", "to_publish");
         TaskStatus published = addDefaultStatus("Published", "published");
+
+        Label bug = addDefaultLabel("bug");
+        Label feature = addDefaultLabel("feature");
 
         if (taskRepository.count() == 0) {
             Task task1 = new Task();
@@ -72,6 +80,14 @@ public class DataInitializer implements ApplicationRunner {
             status.setName(name);
             status.setSlug(slug);
             return taskStatusRepository.save(status);
+        });
+    }
+
+    private Label addDefaultLabel(String name) {
+        return labelRepository.findByName(name).orElseGet(() -> {
+            Label label = new Label();
+            label.setName(name);
+            return labelRepository.save(label);
         });
     }
 }
