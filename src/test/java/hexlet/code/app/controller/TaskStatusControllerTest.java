@@ -55,9 +55,7 @@ public class TaskStatusControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String responseBody = result.getResponse().getContentAsString();
-        // Извлекаем токен из JSON ответа
-        return responseBody.replaceAll(".*\"token\":\"([^\"]+)\".*", "$1");
+        return result.getResponse().getContentAsString();
     }
 
     @BeforeEach

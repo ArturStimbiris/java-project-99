@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.ResponseEntity;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -28,8 +26,7 @@ public class AuthenticationController {
     private UserDetailsService userDetailsService;
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> createAuthenticationToken(
-            @RequestBody LoginRequest authenticationRequest) {
+    public String createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         authenticationRequest.getUsername(),
@@ -40,6 +37,6 @@ public class AuthenticationController {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         final String jwt = jwtUtils.generateToken(userDetails.getUsername());
 
-        return ResponseEntity.ok(Map.of("token", jwt));
+        return jwt;
     }
 }
