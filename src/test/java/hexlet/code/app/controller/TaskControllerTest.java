@@ -1,12 +1,12 @@
 package hexlet.code.app.controller;
 
+import hexlet.code.app.AppApplication;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.model.User;
 import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.repository.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -26,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
-@SpringBootTest
+@SpringBootTest(classes = AppApplication.class)
 @AutoConfigureMockMvc
 public class TaskControllerTest {
 
@@ -45,23 +46,19 @@ public class TaskControllerTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     private String token;
     private User testUser;
     private TaskStatus testStatus;
 
     private String getToken(String email, String password) throws Exception {
         String credentials = "{\"username\":\"" + email + "\",\"password\":\"" + password + "\"}";
-        var result = mockMvc.perform(post("/api/login")
+        MvcResult result = mockMvc.perform(post("/api/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(credentials))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String responseBody = result.getResponse().getContentAsString();
-        return objectMapper.readTree(responseBody).get("token").asText();
+        return result.getResponse().getContentAsString();
     }
 
     @BeforeEach
@@ -70,6 +67,7 @@ public class TaskControllerTest {
         taskStatusRepository.deleteAll();
         userRepository.deleteAll();
 
+        // Создаем пользователя
         testUser = new User();
         testUser.setEmail("admin@example.com");
         testUser.setPassword(passwordEncoder.encode("password"));
@@ -77,6 +75,7 @@ public class TaskControllerTest {
         testUser.setLastName("User");
         userRepository.save(testUser);
 
+        // Создаем статус
         testStatus = new TaskStatus();
         testStatus.setName("Test Status");
         testStatus.setSlug("test_status");

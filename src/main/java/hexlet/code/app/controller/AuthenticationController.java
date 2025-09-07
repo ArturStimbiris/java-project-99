@@ -1,6 +1,5 @@
 package hexlet.code.app.controller;
 
-import hexlet.code.app.dto.JwtResponse;
 import hexlet.code.app.dto.LoginRequest;
 import hexlet.code.app.config.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,7 @@ public class AuthenticationController {
     private UserDetailsService userDetailsService;
 
     @PostMapping("/login")
-    public JwtResponse createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) {
+    public String createAuthenticationToken(@RequestBody LoginRequest authenticationRequest) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         authenticationRequest.getUsername(),
@@ -38,6 +37,6 @@ public class AuthenticationController {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         final String jwt = jwtUtils.generateToken(userDetails.getUsername());
 
-        return new JwtResponse(jwt);
+        return jwt;
     }
 }
