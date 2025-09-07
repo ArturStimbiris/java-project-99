@@ -9,6 +9,7 @@ buildscript {
 plugins {
     java
     checkstyle
+    jacoco
     id("org.springframework.boot") version "3.5.5"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.sonarqube") version "4.4.1.3373"
@@ -63,6 +64,34 @@ sentry {
     autoInstallation.sentryVersion.set("7.17.0")
 }
 
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // tests are required to run before generating the report
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.5".toBigDecimal()
+            }
+        }
+    }
+}
+
+tasks.build {
+    dependsOn(tasks.jacocoTestReport)
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
 }
