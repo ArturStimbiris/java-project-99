@@ -25,6 +25,9 @@ spring:
 jwt:
   secret: "dev-secret-key-which-is-long-enough-for-dev-purposes"
   expiration: 86400000
+sentry:
+  dsn: ${SENTRY_DSN:}
+  send-default-pii: true
 
 ---
 spring:
@@ -45,6 +48,9 @@ spring:
 jwt:
   secret: "test-secret-key-for-testing-purposes-only-which-is-long-enough"
   expiration: 86400000
+sentry:
+  dsn: ${SENTRY_DSN:}
+  send-default-pii: true
 
 ---
 spring:
@@ -61,3 +67,6 @@ spring:
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION:86400000}
+sentry:
+  dsn: ${SENTRY_DSN:}
+  send-default-pii: true
