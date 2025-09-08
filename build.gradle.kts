@@ -16,6 +16,10 @@ plugins {
     id("io.sentry.jvm.gradle") version "5.9.0"
 }
 
+if (System.getenv("CI") != "true") {
+    apply(plugin = "io.sentry.jvm.gradle")
+}
+
 group = "hexlet.code"
 version = "0.0.1-SNAPSHOT"
 description = "Java Task Manager for Spring Boot"
@@ -94,14 +98,4 @@ tasks.build {
 tasks.withType<Test> {
     useJUnitPlatform()
     finalizedBy(tasks.jacocoTestReport)
-}
-
-gradle.taskGraph.whenReady {
-    if (System.getenv("CI") == "true") {
-        allTasks.forEach { task ->
-            if (task.name.startsWith("sentry")) {
-                task.enabled = false
-            }
-        }
-    }
 }
