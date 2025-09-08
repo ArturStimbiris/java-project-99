@@ -1,4 +1,5 @@
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.gradle.api.plugins.JavaPlugin
 
 buildscript {
     repositories {
@@ -16,8 +17,11 @@ plugins {
     id("io.sentry.jvm.gradle") version "5.9.0"
 }
 
-if (System.getenv("CI") != "true") {
-    apply(plugin = "io.sentry.jvm.gradle")
+gradle.projectsEvaluated {
+    if (System.getenv("CI") == "true") {
+        tasks.matching { it.name.startsWith("sentry") }
+             .configureEach { enabled = false }
+    }
 }
 
 group = "hexlet.code"
