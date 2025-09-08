@@ -17,11 +17,10 @@ plugins {
     id("io.sentry.jvm.gradle") version "5.9.0"
 }
 
-gradle.projectsEvaluated {
-    if (System.getenv("CI") == "true") {
-        tasks.matching { it.name.startsWith("sentry") }
-             .configureEach { enabled = false }
-    }
+// Отключаем Sentry в CI окружении
+val isCi = System.getenv("CI") == "true"
+if (isCi) {
+    project.ext.set("sentry.skip", true)
 }
 
 group = "hexlet.code"
@@ -63,15 +62,6 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-sentry {
-    includeSourceContext = true
-
-    org = "arturstimbiris"
-    projectName = "java-spring-boot"
-    authToken = System.getenv("SENTRY_AUTH_TOKEN")
-    autoInstallation.sentryVersion.set("7.17.0")
-}
-
 jacoco {
     toolVersion = "0.8.12"
 }
@@ -102,4 +92,14 @@ tasks.build {
 tasks.withType<Test> {
     useJUnitPlatform()
     finalizedBy(tasks.jacocoTestReport)
+}
+
+// Дополнительное отключение задач Sentry по имени для надежности
+if (isCi) {
+    tasks.whenTaskAdded {
+        if (name.startsWith("sentry") || name.startsWith("generateSentry")) {
+            enabled = false
+        }
+    }
+    tasks.findByName("collectExternalDependenciesForSentry")?.enabled = false
 }
