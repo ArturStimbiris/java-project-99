@@ -95,3 +95,13 @@ tasks.withType<Test> {
     useJUnitPlatform()
     finalizedBy(tasks.jacocoTestReport)
 }
+
+gradle.taskGraph.whenReady {
+    if (System.getenv("CI") == "true") {
+        allTasks.forEach { task ->
+            if (task.name.startsWith("sentry")) {
+                task.enabled = false
+            }
+        }
+    }
+}
