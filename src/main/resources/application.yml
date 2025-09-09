@@ -23,7 +23,8 @@ spring:
       enabled: true
       path: /h2-console
 jwt:
-  secret: "dev-secret-key-which-is-long-enough-for-dev-purposes"
+  private-key: classpath:certs/private.pem
+  public-key: classpath:certs/public.pem
   expiration: 86400000
 sentry:
   dsn: ${SENTRY_DSN:}
@@ -46,7 +47,8 @@ spring:
     hibernate:
       ddl-auto: create-drop
 jwt:
-  secret: "test-secret-key-for-testing-purposes-only-which-is-long-enough"
+  private-key: classpath:certs/private.pem
+  public-key: classpath:certs/public.pem
   expiration: 86400000
 sentry:
   dsn: ${SENTRY_DSN:}
@@ -65,7 +67,8 @@ spring:
     hibernate:
       ddl-auto: update
 jwt:
-  secret: ${JWT_SECRET}
+  private-key: classpath:certs/private.pem
+  public-key: classpath:certs/public.pem
   expiration: ${JWT_EXPIRATION:86400000}
 sentry:
   dsn: ${SENTRY_DSN:}
