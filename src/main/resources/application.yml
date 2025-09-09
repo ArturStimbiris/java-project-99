@@ -8,9 +8,6 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
-rsa:
-  expiration: 86400000
-
 ---
 spring:
   config:

@@ -16,9 +16,9 @@ public class TaskUpdateDTO {
 
     private String content;
 
-    private Long taskStatusId;
+    private String status;
 
     private Long assigneeId;
 
-    private Set<Long> labelIds;
+    private Set<Long> taskLabelIds;
 }

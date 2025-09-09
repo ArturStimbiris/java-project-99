@@ -48,12 +48,12 @@ public class TaskMapper {
         task.setTitle(taskCreateDTO.getTitle());
         task.setIndex(taskCreateDTO.getIndex());
         task.setContent(taskCreateDTO.getContent());
-        task.setTaskStatus(taskStatusService.findByIdEntity(taskCreateDTO.getTaskStatusId()));
+        task.setTaskStatus(taskStatusService.findBySlug(taskCreateDTO.getStatus()));
         if (taskCreateDTO.getAssigneeId() != null) {
             task.setAssignee(userService.findByIdEntity(taskCreateDTO.getAssigneeId()));
         }
-        if (taskCreateDTO.getLabelIds() != null) {
-            task.setLabels(taskCreateDTO.getLabelIds().stream()
+        if (taskCreateDTO.getTaskLabelIds() != null) {
+            task.setLabels(taskCreateDTO.getTaskLabelIds().stream()
                     .map(labelId -> labelService.findByIdEntity(labelId))
                     .collect(Collectors.toSet()));
         }
@@ -70,14 +70,14 @@ public class TaskMapper {
         if (taskUpdateDTO.getContent() != null) {
             task.setContent(taskUpdateDTO.getContent());
         }
-        if (taskUpdateDTO.getTaskStatusId() != null) {
-            task.setTaskStatus(taskStatusService.findByIdEntity(taskUpdateDTO.getTaskStatusId()));
+        if (taskUpdateDTO.getStatus() != null) {
+            task.setTaskStatus(taskStatusService.findBySlug(taskUpdateDTO.getStatus()));
         }
         if (taskUpdateDTO.getAssigneeId() != null) {
             task.setAssignee(userService.findByIdEntity(taskUpdateDTO.getAssigneeId()));
         }
-        if (taskUpdateDTO.getLabelIds() != null) {
-            task.setLabels(taskUpdateDTO.getLabelIds().stream()
+        if (taskUpdateDTO.getTaskLabelIds() != null) {
+            task.setLabels(taskUpdateDTO.getTaskLabelIds().stream()
                     .map(labelId -> labelService.findByIdEntity(labelId))
                     .collect(Collectors.toSet()));
         }

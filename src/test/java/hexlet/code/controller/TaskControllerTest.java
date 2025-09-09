@@ -128,8 +128,8 @@ public class TaskControllerTest {
 
     @Test
     void testCreate() throws Exception {
-        String taskData = "{\"title\":\"New Task\",\"content\":\"New Content\",\"taskStatusId\":"
-                + testStatus.getId() + ",\"assigneeId\":" + testUser.getId() + "}";
+        String taskData = "{\"title\":\"New Task\",\"content\":\"New Content\",\"status\":\""
+                + testStatus.getSlug() + "\",\"assigneeId\":" + testUser.getId() + "}";
 
         mockMvc.perform(post("/api/tasks")
                 .contentType(MediaType.APPLICATION_JSON)
