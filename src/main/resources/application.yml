@@ -8,6 +8,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
+rsa:
+  expiration: 86400000
+
 ---
 spring:
   config:
@@ -22,10 +25,11 @@ spring:
     console:
       enabled: true
       path: /h2-console
-jwt:
-  private-key: classpath:certs/private.pem
-  public-key: classpath:certs/public.pem
-  expiration: 86400000
+  rsa:
+    private-key: classpath:certs/private.pem
+    public-key: classpath:certs/public.pem
+    expiration: 86400000
+
 sentry:
   dsn: ${SENTRY_DSN:}
   send-default-pii: true
@@ -46,10 +50,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-jwt:
-  private-key: classpath:certs/private.pem
-  public-key: classpath:certs/public.pem
-  expiration: 86400000
+  rsa:
+    private-key: classpath:certs/private.pem
+    public-key: classpath:certs/public.pem
+    expiration: 86400000
+
 sentry:
   dsn: ${SENTRY_DSN:}
   send-default-pii: true
@@ -66,10 +71,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-jwt:
-  private-key: classpath:certs/private.pem
-  public-key: classpath:certs/public.pem
-  expiration: ${JWT_EXPIRATION:86400000}
+  rsa:
+    private-key: classpath:certs/private.pem
+    public-key: classpath:certs/public.pem
+    expiration: 86400000
+
 sentry:
   dsn: ${SENTRY_DSN:}
   send-default-pii: true

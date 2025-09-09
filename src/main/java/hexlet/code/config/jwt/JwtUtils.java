@@ -26,13 +26,13 @@ import jakarta.annotation.PostConstruct;
 @Component
 public class JwtUtils {
 
-    @Value("${jwt.private-key}")
+    @Value("${rsa.private-key}")
     private Resource privateKeyResource;
 
-    @Value("${jwt.public-key}")
+    @Value("${rsa.public-key}")
     private Resource publicKeyResource;
 
-    @Value("${jwt.expiration}")
+    @Value("${rsa.expiration:86400000}") // Добавлено значение по умолчанию
     private Long expiration;
 
     private Key privateKey;

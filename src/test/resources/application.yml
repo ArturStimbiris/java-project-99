@@ -18,7 +18,7 @@ spring:
     init:
       mode: always
 
-jwt:
+rsa:
   private-key: classpath:certs/private.pem
   public-key: classpath:certs/public.pem
   expiration: 86400000
