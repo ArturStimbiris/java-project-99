@@ -48,14 +48,14 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('USER') and authentication.principal.username == @userService.findEmailById(#id)")
+    @PreAuthorize("authentication.principal.username == @userService.findEmailById(#id)")
     public UserDTO update(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO userUpdateDTO) {
         return userService.update(id, userUpdateDTO);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('USER') and authentication.principal.username == @userService.findEmailById(#id)")
+    @PreAuthorize("authentication.principal.username == @userService.findEmailById(#id)")
     public void destroy(@PathVariable Long id) {
         userService.delete(id);
     }
