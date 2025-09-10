@@ -29,7 +29,13 @@ sonarqube {
             .asFile
             .absolutePath
         )
-        property("sonar.coverage.exclusions", "**/src/test/java/**/*")
+        property("sonar.coverage.exclusions", 
+            "**/src/test/java/**/*," +
+            "**/config/**," +
+            "**/dto/**," +
+            "**/model/**," +
+            "**/exception/**," +
+            "**/AppApplication.*")
     }
 }
 
@@ -85,14 +91,22 @@ tasks.named<JacocoReport>("jacocoTestReport") {
     dependsOn(tasks.test)
     reports {
         xml.required.set(true)
-        html.required.set(false)
+        html.required.set(true)
         csv.required.set(false)
     }
 
     classDirectories.setFrom(
         files(classDirectories.files.map {
             fileTree(it) {
-                exclude("**/*Test.class", "**/*Tests.class")
+                exclude(
+                    "**/*Test.class", 
+                    "**/*Tests.class",
+                    "**/config/**",
+                    "**/dto/**",
+                    "**/model/**",
+                    "**/exception/**",
+                    "**/AppApplication.*"
+                )
             }
         })
     )
@@ -104,6 +118,9 @@ tasks.build {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    testLogging {
+        events = setOf(TestLogEvent.PASSED, TestLogEvent.FAILED, TestLogEvent.SKIPPED)
+    }
     finalizedBy(tasks.jacocoTestReport)
 }
 

@@ -3,6 +3,7 @@ package hexlet.code.service;
 import hexlet.code.dto.TaskStatusCreateDTO;
 import hexlet.code.dto.TaskStatusDTO;
 import hexlet.code.dto.TaskStatusUpdateDTO;
+import hexlet.code.exception.TaskStatusNotFoundException;
 import hexlet.code.mapper.TaskStatusMapper;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskRepository;
@@ -39,18 +40,18 @@ public class TaskStatusService {
 
     public TaskStatusDTO findById(Long id) {
         TaskStatus taskStatus = taskStatusRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
+                .orElseThrow(() -> new TaskStatusNotFoundException(id));
         return taskStatusMapper.map(taskStatus);
     }
 
     public TaskStatus findByIdEntity(Long id) {
         return taskStatusRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
+                .orElseThrow(() -> new TaskStatusNotFoundException(id));
     }
 
     public TaskStatusDTO update(Long id, TaskStatusUpdateDTO taskStatusUpdateDTO) {
         TaskStatus taskStatus = taskStatusRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
+                .orElseThrow(() -> new TaskStatusNotFoundException(id));
         taskStatusMapper.update(taskStatusUpdateDTO, taskStatus);
         taskStatus = taskStatusRepository.save(taskStatus);
         return taskStatusMapper.map(taskStatus);
@@ -61,11 +62,15 @@ public class TaskStatusService {
         if (taskCount > 0) {
             throw new RuntimeException("Cannot delete task status with associated tasks");
         }
-        taskStatusRepository.deleteById(id);
+
+        TaskStatus taskStatus = taskStatusRepository.findById(id)
+                .orElseThrow(() -> new TaskStatusNotFoundException(id));
+
+        taskStatusRepository.delete(taskStatus);
     }
 
     public TaskStatus findBySlug(String slug) {
         return taskStatusRepository.findBySlug(slug)
-                .orElseThrow(() -> new RuntimeException("TaskStatus not found"));
+                .orElseThrow(() -> new TaskStatusNotFoundException(slug));
     }
 }

@@ -8,6 +8,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
+cors:
+  allowed-origins: "http://localhost:3000,https://java-project-99-8dn6.onrender.com"
+
 ---
 spring:
   config:

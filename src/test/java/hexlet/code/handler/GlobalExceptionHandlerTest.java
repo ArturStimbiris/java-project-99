@@ -1,5 +1,9 @@
 package hexlet.code.handler;
 
+import hexlet.code.exception.UserNotFoundException;
+import hexlet.code.exception.TaskNotFoundException;
+import hexlet.code.exception.TaskStatusNotFoundException;
+import hexlet.code.exception.LabelNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -81,5 +85,45 @@ public class GlobalExceptionHandlerTest {
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("General exception", response.getBody());
+    }
+
+    @Test
+    void testHandleUserNotFoundException() {
+        UserNotFoundException ex = new UserNotFoundException(1L);
+
+        ResponseEntity<String> response = globalExceptionHandler.handleException(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("User with id 1 not found", response.getBody());
+    }
+
+    @Test
+    void testHandleTaskNotFoundException() {
+        TaskNotFoundException ex = new TaskNotFoundException(1L);
+
+        ResponseEntity<String> response = globalExceptionHandler.handleException(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Task with id 1 not found", response.getBody());
+    }
+
+    @Test
+    void testHandleTaskStatusNotFoundException() {
+        TaskStatusNotFoundException ex = new TaskStatusNotFoundException(1L);
+
+        ResponseEntity<String> response = globalExceptionHandler.handleException(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("TaskStatus with id 1 not found", response.getBody());
+    }
+
+    @Test
+    void testHandleLabelNotFoundException() {
+        LabelNotFoundException ex = new LabelNotFoundException(1L);
+
+        ResponseEntity<String> response = globalExceptionHandler.handleException(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Label with id 1 not found", response.getBody());
     }
 }

@@ -3,6 +3,7 @@ package hexlet.code.service;
 import hexlet.code.dto.UserCreateDTO;
 import hexlet.code.dto.UserDTO;
 import hexlet.code.dto.UserUpdateDTO;
+import hexlet.code.exception.UserNotFoundException;
 import hexlet.code.mapper.UserMapper;
 import hexlet.code.model.User;
 import hexlet.code.repository.TaskRepository;
@@ -45,18 +46,18 @@ public class UserService {
 
     public UserDTO findById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(id));
         return userMapper.map(user);
     }
 
     public User findByIdEntity(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
 
     public UserDTO update(Long id, UserUpdateDTO userUpdateDTO) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(id));
         userMapper.update(userUpdateDTO, user);
         if (userUpdateDTO.getPassword() != null) {
             user.setPassword(passwordEncoder.encode(userUpdateDTO.getPassword()));
@@ -70,7 +71,11 @@ public class UserService {
         if (taskCount > 0) {
             throw new RuntimeException("Cannot delete user with assigned tasks");
         }
-        userRepository.deleteById(id);
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+
+        userRepository.delete(user);
     }
 
     public Optional<User> findByEmail(String email) {
@@ -79,7 +84,7 @@ public class UserService {
 
     public String findEmailById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"))
+                .orElseThrow(() -> new UserNotFoundException(id))
                 .getEmail();
     }
 }

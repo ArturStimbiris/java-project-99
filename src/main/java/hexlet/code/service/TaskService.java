@@ -3,6 +3,7 @@ package hexlet.code.service;
 import hexlet.code.dto.TaskCreateDTO;
 import hexlet.code.dto.TaskDTO;
 import hexlet.code.dto.TaskUpdateDTO;
+import hexlet.code.exception.TaskNotFoundException;
 import hexlet.code.mapper.TaskMapper;
 import hexlet.code.model.Task;
 import hexlet.code.repository.TaskRepository;
@@ -42,24 +43,26 @@ public class TaskService {
 
     public TaskDTO findById(Long id) {
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new TaskNotFoundException(id));
         return taskMapper.map(task);
     }
 
     public TaskDTO update(Long id, TaskUpdateDTO taskUpdateDTO) {
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new TaskNotFoundException(id));
         taskMapper.update(taskUpdateDTO, task);
         task = taskRepository.save(task);
         return taskMapper.map(task);
     }
 
     public void delete(Long id) {
-        taskRepository.deleteById(id);
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException(id));
+        taskRepository.delete(task);
     }
 
     public Task findByIdEntity(Long id) {
         return taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new TaskNotFoundException(id));
     }
 }
