@@ -26,13 +26,13 @@ import jakarta.annotation.PostConstruct;
 @Component
 public class JwtUtils {
 
-    @Value("${rsa.private-key}")
+    @Value("${rsa.private-key:classpath:certs/private.pem}")
     private Resource privateKeyResource;
 
-    @Value("${rsa.public-key}")
+    @Value("${rsa.public-key:classpath:certs/public.pem}")
     private Resource publicKeyResource;
 
-    @Value("${rsa.expiration:86400000}") // Добавлено значение по умолчанию
+    @Value("${rsa.expiration:86400000}")
     private Long expiration;
 
     private Key privateKey;
@@ -40,8 +40,12 @@ public class JwtUtils {
 
     @PostConstruct
     public void init() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        privateKey = loadPrivateKey(privateKeyResource);
-        publicKey = loadPublicKey(publicKeyResource);
+        try {
+            privateKey = loadPrivateKey(privateKeyResource);
+            publicKey = loadPublicKey(publicKeyResource);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load RSA keys", e);
+        }
     }
 
     private Key loadPrivateKey(Resource resource)
