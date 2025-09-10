@@ -36,7 +36,7 @@ public class TaskMapper {
             taskDTO.setAssigneeId(task.getAssignee().getId());
         }
         if (task.getLabels() != null) {
-            taskDTO.setLabelIds(task.getLabels().stream()
+            taskDTO.setTaskLabelIds(task.getLabels().stream()
                     .map(label -> label.getId())
                     .collect(Collectors.toSet()));
         }
