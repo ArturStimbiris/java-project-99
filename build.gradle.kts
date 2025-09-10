@@ -23,6 +23,50 @@ sonarqube {
         property("sonar.tests", "src/test/java")
         property("sonar.coverage.exclusions", "src/test/java/**/*.java")
         property("sonar.exclusions", "src/test/java/**/*.java")
+        property("sonar.jacoco.reportPaths", layout.buildDirectory.file("jacoco/test.exec").get().asFile.absolutePath)
+    }
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+    }
+    
+    // Исключаем тестовые классы из отчета JaCoCo
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(it).exclude(
+                "**/*Test.class",
+                "**/*Tests.class",
+                "**/test/**"
+            )
+        })
+    )
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.8".toBigDecimal()
+            }
+        }
+        // Исключаем тестовые классы из проверки покрытия
+        rule {
+            element = "CLASS"
+            excludes = listOf(
+                "*Test",
+                "Test*",
+                "*Tests",
+                "*Test*"
+            )
+            limit {
+                minimum = "0.8".toBigDecimal()
+            }
+        }
     }
 }
 
