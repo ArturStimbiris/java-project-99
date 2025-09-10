@@ -17,7 +17,15 @@ plugins {
     id("io.sentry.jvm.gradle") version "5.9.0"
 }
 
-// Отключаем Sentry в CI окружении
+sonarqube {
+    properties {
+        property("sonar.sources", "src/main/java")
+        property("sonar.tests", "src/test/java")
+        property("sonar.coverage.exclusions", "src/test/java/**/*.java")
+        property("sonar.exclusions", "src/test/java/**/*.java")
+    }
+}
+
 val isCi = System.getenv("CI") == "true"
 if (isCi) {
     project.ext.set("sentry.skip", true)
@@ -94,7 +102,6 @@ tasks.withType<Test> {
     finalizedBy(tasks.jacocoTestReport)
 }
 
-// Дополнительное отключение задач Sentry по имени для надежности
 if (isCi) {
     tasks.whenTaskAdded {
         if (name.startsWith("sentry") || name.startsWith("generateSentry")) {
