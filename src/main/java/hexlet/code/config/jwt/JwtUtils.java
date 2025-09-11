@@ -3,6 +3,7 @@ package hexlet.code.config.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.function.Function;
 import jakarta.annotation.PostConstruct;
 
+@Slf4j
 @Component
 public class JwtUtils {
 
@@ -101,6 +103,19 @@ public class JwtUtils {
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    public Boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(publicKey)
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            log.warn("Invalid JWT token: {}", e.getMessage());
+            return false;
+        }
     }
 
     public String generateToken(String userName) {
