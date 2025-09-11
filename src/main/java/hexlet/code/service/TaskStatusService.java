@@ -8,22 +8,19 @@ import hexlet.code.mapper.TaskStatusMapper;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class TaskStatusService {
 
-    @Autowired
-    private TaskStatusRepository taskStatusRepository;
-
-    @Autowired
-    private TaskRepository taskRepository;
-
-    @Autowired
-    private TaskStatusMapper taskStatusMapper;
+    private final TaskStatusRepository taskStatusRepository;
+    private final TaskRepository taskRepository;
+    private final TaskStatusMapper taskStatusMapper;
 
     public List<TaskStatusDTO> getAll() {
         List<TaskStatus> taskStatuses = taskStatusRepository.findAll();
@@ -58,15 +55,14 @@ public class TaskStatusService {
     }
 
     public void delete(Long id) {
-        long taskCount = taskRepository.countByTaskStatusId(id);
-        if (taskCount > 0) {
-            throw new RuntimeException("Cannot delete task status with associated tasks");
-        }
-
         TaskStatus taskStatus = taskStatusRepository.findById(id)
                 .orElseThrow(() -> new TaskStatusNotFoundException(id));
 
-        taskStatusRepository.delete(taskStatus);
+        try {
+            taskStatusRepository.delete(taskStatus);
+        } catch (DataIntegrityViolationException e) {
+            throw new RuntimeException("Cannot delete task status with associated tasks");
+        }
     }
 
     public TaskStatus findBySlug(String slug) {

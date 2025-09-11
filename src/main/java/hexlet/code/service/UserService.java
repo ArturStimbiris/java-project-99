@@ -8,7 +8,8 @@ import hexlet.code.mapper.UserMapper;
 import hexlet.code.model.User;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,19 +17,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private TaskRepository taskRepository;
-
-    @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final TaskRepository taskRepository;
+    private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     public List<UserDTO> getAll() {
         List<User> users = userRepository.findAll();
@@ -67,15 +62,14 @@ public class UserService {
     }
 
     public void delete(Long id) {
-        long taskCount = taskRepository.countByAssigneeId(id);
-        if (taskCount > 0) {
-            throw new RuntimeException("Cannot delete user with assigned tasks");
-        }
-
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
 
-        userRepository.delete(user);
+        try {
+            userRepository.delete(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new RuntimeException("Cannot delete user with assigned tasks");
+        }
     }
 
     public Optional<User> findByEmail(String email) {

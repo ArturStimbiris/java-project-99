@@ -7,23 +7,18 @@ import hexlet.code.exception.LabelNotFoundException;
 import hexlet.code.mapper.LabelMapper;
 import hexlet.code.model.Label;
 import hexlet.code.repository.LabelRepository;
-import hexlet.code.repository.TaskRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class LabelService {
 
-    @Autowired
-    private LabelRepository labelRepository;
-
-    @Autowired
-    private TaskRepository taskRepository;
-
-    @Autowired
-    private LabelMapper labelMapper;
+    private final LabelRepository labelRepository;
+    private final LabelMapper labelMapper;
 
     public List<LabelDTO> getAll() {
         List<Label> labels = labelRepository.findAll();
@@ -61,11 +56,11 @@ public class LabelService {
         Label label = labelRepository.findById(id)
                 .orElseThrow(() -> new LabelNotFoundException(id));
 
-        if (!label.getTasks().isEmpty()) {
+        try {
+            labelRepository.delete(label);
+        } catch (DataIntegrityViolationException e) {
             throw new RuntimeException("Cannot delete label with associated tasks");
         }
-
-        labelRepository.delete(label);
     }
 
     public Label findByName(String name) {

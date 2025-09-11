@@ -8,7 +8,7 @@ buildscript {
 }
 
 plugins {
-    java
+    application
     checkstyle
     jacoco
     id("org.springframework.boot") version "3.5.5"

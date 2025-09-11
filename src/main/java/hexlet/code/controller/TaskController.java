@@ -5,9 +5,10 @@ import hexlet.code.dto.TaskDTO;
 import hexlet.code.dto.TaskUpdateDTO;
 import hexlet.code.service.TaskService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,47 +24,47 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
+@AllArgsConstructor
 public class TaskController {
 
-    @Autowired
-    private TaskService taskService;
+    private final TaskService taskService;
 
     @GetMapping("")
+    @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<List<TaskDTO>> index(
             @RequestParam(required = false) String titleCont,
             @RequestParam(required = false) Long assigneeId,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Long labelId
     ) {
-        List<TaskDTO> tasks;
-        if (titleCont != null || assigneeId != null || status != null || labelId != null) {
-            tasks = taskService.getWithFilters(titleCont, assigneeId, status, labelId);
-        } else {
-            tasks = taskService.getAll();
-        }
+        List<TaskDTO> tasks = taskService.getWithFilters(titleCont, assigneeId, status, labelId);
         return ResponseEntity.ok()
                 .header("X-Total-Count", String.valueOf(tasks.size()))
                 .body(tasks);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('USER')")
     public TaskDTO show(@PathVariable Long id) {
         return taskService.findById(id);
     }
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAuthority('USER')")
     public TaskDTO create(@Valid @RequestBody TaskCreateDTO taskCreateDTO) {
         return taskService.create(taskCreateDTO);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('USER')")
     public TaskDTO update(@PathVariable Long id, @Valid @RequestBody TaskUpdateDTO taskUpdateDTO) {
         return taskService.update(id, taskUpdateDTO);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('USER')")
     public void destroy(@PathVariable Long id) {
         taskService.delete(id);
     }

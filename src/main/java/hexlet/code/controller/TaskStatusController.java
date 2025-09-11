@@ -5,9 +5,10 @@ import hexlet.code.dto.TaskStatusDTO;
 import hexlet.code.dto.TaskStatusUpdateDTO;
 import hexlet.code.service.TaskStatusService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,12 +23,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/task_statuses")
+@AllArgsConstructor
 public class TaskStatusController {
 
-    @Autowired
-    private TaskStatusService taskStatusService;
+    private final TaskStatusService taskStatusService;
 
     @GetMapping("")
+    @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<List<TaskStatusDTO>> index() {
         List<TaskStatusDTO> taskStatuses = taskStatusService.getAll();
         return ResponseEntity.ok()
@@ -36,23 +38,27 @@ public class TaskStatusController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('USER')")
     public TaskStatusDTO show(@PathVariable Long id) {
         return taskStatusService.findById(id);
     }
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAuthority('USER')")
     public TaskStatusDTO create(@Valid @RequestBody TaskStatusCreateDTO taskStatusCreateDTO) {
         return taskStatusService.create(taskStatusCreateDTO);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('USER')")
     public TaskStatusDTO update(@PathVariable Long id, @Valid @RequestBody TaskStatusUpdateDTO taskStatusUpdateDTO) {
         return taskStatusService.update(id, taskStatusUpdateDTO);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('USER')")
     public void destroy(@PathVariable Long id) {
         taskStatusService.delete(id);
     }
