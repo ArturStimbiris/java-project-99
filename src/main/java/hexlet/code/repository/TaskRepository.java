@@ -12,12 +12,10 @@ import java.util.List;
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Query("SELECT t FROM Task t WHERE "
-            + "(:titleCont IS NULL OR t.title ILIKE CONCAT('%', :titleCont, '%')) AND "
             + "(:assigneeId IS NULL OR t.assignee.id = :assigneeId) AND "
             + "(:status IS NULL OR t.taskStatus.slug = :status) AND "
             + "(:labelId IS NULL OR EXISTS (SELECT l FROM t.labels l WHERE l.id = :labelId))")
     List<Task> findByFilters(
-            @Param("titleCont") String titleCont,
             @Param("assigneeId") Long assigneeId,
             @Param("status") String status,
             @Param("labelId") Long labelId
