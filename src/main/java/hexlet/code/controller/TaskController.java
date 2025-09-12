@@ -7,7 +7,6 @@ import hexlet.code.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,16 +30,13 @@ public class TaskController {
 
     @GetMapping("")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<TaskDTO>> index(
+    public List<TaskDTO> index(
             @RequestParam(required = false) String titleCont,
             @RequestParam(required = false) Long assigneeId,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Long labelId
     ) {
-        List<TaskDTO> tasks = taskService.getWithFilters(titleCont, assigneeId, status, labelId);
-        return ResponseEntity.ok()
-                .header("X-Total-Count", String.valueOf(tasks.size()))
-                .body(tasks);
+        return taskService.getWithFilters(titleCont, assigneeId, status, labelId);
     }
 
     @GetMapping("/{id}")

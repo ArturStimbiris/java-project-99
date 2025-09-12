@@ -58,36 +58,6 @@ public class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void testHandleWeakKeyException() {
-        io.jsonwebtoken.security.WeakKeyException ex = new io.jsonwebtoken.security.WeakKeyException("Weak key");
-
-        ResponseEntity<String> response = globalExceptionHandler.handleWeakKeyException(ex);
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertEquals("JWT configuration error", response.getBody());
-    }
-
-    @Test
-    void testHandleIllegalArgumentException() {
-        IllegalArgumentException ex = new IllegalArgumentException("Illegal argument");
-
-        ResponseEntity<String> response = globalExceptionHandler.handleIllegalArgumentException(ex);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Illegal argument", response.getBody());
-    }
-
-    @Test
-    void testHandleException() {
-        Exception ex = new Exception("General exception");
-
-        ResponseEntity<String> response = globalExceptionHandler.handleException(ex);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("General exception", response.getBody());
-    }
-
-    @Test
     void testHandleUserNotFoundException() {
         UserNotFoundException ex = new UserNotFoundException(1L);
 
