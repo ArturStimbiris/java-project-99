@@ -137,6 +137,19 @@ public class JwtUtils {
         return false;
     }
 
+    public boolean isProductionProfile() {
+        if (environment == null) {
+            return false;
+        }
+        String[] profiles = environment.getActiveProfiles();
+        for (String profile : profiles) {
+            if ("production".equals(profile)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public String generateToken(String userName) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userName);
