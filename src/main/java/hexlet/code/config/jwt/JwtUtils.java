@@ -126,7 +126,7 @@ public class JwtUtils {
         }
     }
 
-    private boolean isTestProfileActive() {
+    public boolean isTestProfileActive() {
         if (environment != null) {
             for (String profile : environment.getActiveProfiles()) {
                 if ("test".equals(profile)) {
