@@ -29,7 +29,7 @@ public class LabelController {
     private final LabelService labelService;
 
     @GetMapping("")
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<LabelDTO>> index() {
         List<LabelDTO> labels = labelService.getAll();
         return ResponseEntity.ok()
@@ -38,27 +38,27 @@ public class LabelController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("isAuthenticated()")
     public LabelDTO show(@PathVariable Long id) {
         return labelService.findById(id);
     }
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("isAuthenticated()")
     public LabelDTO create(@Valid @RequestBody LabelCreateDTO labelCreateDTO) {
         return labelService.create(labelCreateDTO);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("isAuthenticated()")
     public LabelDTO update(@PathVariable Long id, @Valid @RequestBody LabelUpdateDTO labelUpdateDTO) {
         return labelService.update(id, labelUpdateDTO);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("isAuthenticated()")
     public void destroy(@PathVariable Long id) {
         labelService.delete(id);
     }

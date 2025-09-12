@@ -58,25 +58,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             } catch (Exception e) {
                 log.warn("Error validating JWT token: {}", e.getMessage());
             }
-        } else if (authorizationHeader != null && !jwtUtils.isProductionProfile()) {
-            String testUsername = "testUser";
-            if (authorizationHeader.startsWith("Bearer ")) {
-                try {
-                    testUsername = jwtUtils.extractUsername(authorizationHeader.substring(7));
-                } catch (Exception e) {
-                }
-            }
-            var authorities = List.of(new SimpleGrantedAuthority("USER"));
-            var userDetails = org.springframework.security.core.userdetails.User.builder()
-                    .username(testUsername)
-                    .password("")
-                    .authorities(authorities)
-                    .build();
-
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
-            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
         chain.doFilter(request, response);
     }

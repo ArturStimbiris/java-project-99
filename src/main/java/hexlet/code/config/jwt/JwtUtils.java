@@ -112,9 +112,6 @@ public class JwtUtils {
 
     public Boolean validateToken(String token) {
         try {
-            if (isTestProfileActive()) {
-                return true;
-            }
             Jwts.parserBuilder()
                     .setSigningKey(publicKey)
                     .build()
@@ -124,30 +121,6 @@ public class JwtUtils {
             log.warn("Invalid JWT token: {}", e.getMessage());
             return false;
         }
-    }
-
-    public boolean isTestProfileActive() {
-        if (environment != null) {
-            for (String profile : environment.getActiveProfiles()) {
-                if ("test".equals(profile)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public boolean isProductionProfile() {
-        if (environment == null) {
-            return false;
-        }
-        String[] profiles = environment.getActiveProfiles();
-        for (String profile : profiles) {
-            if ("production".equals(profile)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public String generateToken(String userName) {

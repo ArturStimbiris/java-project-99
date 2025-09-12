@@ -29,7 +29,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("")
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<UserDTO>> index() {
         List<UserDTO> users = userService.getAll();
         return ResponseEntity.ok()
@@ -38,7 +38,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("isAuthenticated()")
     public UserDTO show(@PathVariable Long id) {
         return userService.findById(id);
     }
@@ -50,14 +50,14 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("@userService.findEmailById(#id) == authentication.name")
     public UserDTO update(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO userUpdateDTO) {
         return userService.update(id, userUpdateDTO);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("@userService.findEmailById(#id) == authentication.name")
     public void destroy(@PathVariable Long id) {
         userService.delete(id);
     }

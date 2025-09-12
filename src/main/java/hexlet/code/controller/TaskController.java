@@ -30,7 +30,7 @@ public class TaskController {
     private final TaskService taskService;
 
     @GetMapping("")
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<TaskDTO>> index(
             @RequestParam(required = false) String titleCont,
             @RequestParam(required = false) Long assigneeId,
@@ -44,27 +44,27 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("isAuthenticated()")
     public TaskDTO show(@PathVariable Long id) {
         return taskService.findById(id);
     }
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("isAuthenticated()")
     public TaskDTO create(@Valid @RequestBody TaskCreateDTO taskCreateDTO) {
         return taskService.create(taskCreateDTO);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("isAuthenticated()")
     public TaskDTO update(@PathVariable Long id, @Valid @RequestBody TaskUpdateDTO taskUpdateDTO) {
         return taskService.update(id, taskUpdateDTO);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("isAuthenticated()")
     public void destroy(@PathVariable Long id) {
         taskService.delete(id);
     }
