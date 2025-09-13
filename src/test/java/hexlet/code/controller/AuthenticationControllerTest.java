@@ -18,12 +18,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.Matchers.equalTo;
 
 @ActiveProfiles("test")
 @SpringBootTest(classes = AppApplication.class)
 @AutoConfigureMockMvc
-public class AuthenticationControllerTest {
+class AuthenticationControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -56,7 +56,7 @@ public class AuthenticationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(credentials))
                 .andExpect(status().isOk())
-                .andExpect(content().string(not(isEmptyString())));
+                .andExpect(content().string(not(equalTo(""))));
     }
 
     @Test

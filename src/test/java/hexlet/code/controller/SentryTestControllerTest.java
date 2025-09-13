@@ -18,14 +18,14 @@ public class SentryTestControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    public void testSentryTest() throws Exception {
+    void testSentryTest() throws Exception {
         mockMvc.perform(get("/sentry-test"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Exception caught and sent to Sentry! Check your Sentry dashboard."));
     }
 
     @Test
-    public void testSentryTest2() throws Exception {
+    void testSentryTest2() throws Exception {
         mockMvc.perform(get("/sentry-test-2"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Array index error sent to Sentry! Check your Sentry dashboard."));

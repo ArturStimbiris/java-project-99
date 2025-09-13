@@ -64,7 +64,6 @@ public class LabelControllerTest {
         labelRepository.deleteAll();
         userRepository.deleteAll();
 
-        // Создаем пользователя
         User user = new User();
         user.setEmail("admin@example.com");
         user.setPassword(passwordEncoder.encode("password"));

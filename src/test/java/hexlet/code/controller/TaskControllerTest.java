@@ -74,7 +74,6 @@ public class TaskControllerTest {
         userRepository.deleteAll();
         labelRepository.deleteAll();
 
-        // Создаем пользователя
         testUser = new User();
         testUser.setEmail("admin@example.com");
         testUser.setPassword(passwordEncoder.encode("password"));
@@ -82,13 +81,11 @@ public class TaskControllerTest {
         testUser.setLastName("User");
         userRepository.save(testUser);
 
-        // Создаем статус
         testStatus = new TaskStatus();
         testStatus.setName("Test Status");
         testStatus.setSlug("test_status");
         taskStatusRepository.save(testStatus);
 
-        // Создаем метку
         testLabel = new Label();
         testLabel.setName("Test Label");
         labelRepository.save(testLabel);

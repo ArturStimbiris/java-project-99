@@ -7,7 +7,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.model.User;
 import hexlet.code.model.Label;
 import hexlet.code.repository.UserRepository;
@@ -35,9 +34,6 @@ public class TestUtils {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     public String getToken(String email, String password) throws Exception {
         String credentials = "{\"username\":\"" + email + "\",\"password\":\"" + password + "\"}";
