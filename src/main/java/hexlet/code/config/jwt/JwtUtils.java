@@ -51,7 +51,7 @@ public class JwtUtils {
     }
 
     private Key loadPrivateKey(Resource resource)
-    throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+            throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         byte[] keyBytes = resource.getInputStream().readAllBytes();
         String key = new String(keyBytes, StandardCharsets.UTF_8)
                 .replace("-----BEGIN PRIVATE KEY-----", "")
@@ -63,7 +63,8 @@ public class JwtUtils {
         return keyFactory.generatePrivate(keySpec);
     }
 
-    private Key loadPublicKey(Resource resource) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+    private Key loadPublicKey(Resource resource)
+            throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         byte[] keyBytes = resource.getInputStream().readAllBytes();
         String key = new String(keyBytes, StandardCharsets.UTF_8)
                 .replace("-----BEGIN PUBLIC KEY-----", "")

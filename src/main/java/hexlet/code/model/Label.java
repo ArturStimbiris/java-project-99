@@ -6,9 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Column;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.ManyToMany;
 import jakarta.validation.constraints.Size;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.AllArgsConstructor;
@@ -18,7 +16,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "labels")
@@ -39,11 +36,6 @@ public class Label {
 
     @CreationTimestamp
     private Instant createdAt;
-
-    @ManyToMany(mappedBy = "labels")
-    @JsonIgnore
-    @ToString.Exclude
-    private Set<Task> tasks;
 
     @Override
     public boolean equals(Object o) {

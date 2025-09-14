@@ -44,3 +44,7 @@ node_modules/
 
 ### JaCoCo ###
 **/jacocoHtml/
+
+# RSA Keys
+src/main/resources/certs/
+src/test/resources/certs/

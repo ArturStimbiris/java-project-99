@@ -26,8 +26,8 @@ spring:
       enabled: true
       path: /h2-console
   rsa:
-    private-key: classpath:certs/private.pem
-    public-key: classpath:certs/public.pem
+    private-key: ${RSA_PRIVATE_KEY:}
+    public-key: ${RSA_PUBLIC_KEY:}
     expiration: 86400000
 
 sentry:
@@ -51,8 +51,8 @@ spring:
     hibernate:
       ddl-auto: create-drop
   rsa:
-    private-key: classpath:certs/private.pem
-    public-key: classpath:certs/public.pem
+    private-key: ${RSA_PRIVATE_KEY:}
+    public-key: ${RSA_PUBLIC_KEY:}
     expiration: 86400000
 
 sentry:
@@ -72,8 +72,8 @@ spring:
     hibernate:
       ddl-auto: update
   rsa:
-    private-key: classpath:certs/private.pem
-    public-key: classpath:certs/public.pem
+    private-key: ${RSA_PRIVATE_KEY:}
+    public-key: ${RSA_PUBLIC_KEY:}
     expiration: 86400000
 
 sentry:
