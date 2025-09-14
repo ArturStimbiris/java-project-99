@@ -4,6 +4,7 @@ import hexlet.code.dto.LabelCreateDTO;
 import hexlet.code.dto.LabelDTO;
 import hexlet.code.dto.LabelUpdateDTO;
 import hexlet.code.exception.LabelNotFoundException;
+import hexlet.code.exception.LabelDeletionException;
 import hexlet.code.mapper.LabelMapper;
 import hexlet.code.model.Label;
 import hexlet.code.repository.LabelRepository;
@@ -55,11 +56,10 @@ public class LabelService {
     public void delete(Long id) {
         Label label = labelRepository.findById(id)
                 .orElseThrow(() -> new LabelNotFoundException(id));
-
         try {
             labelRepository.delete(label);
         } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("Cannot delete label with associated tasks");
+            throw new LabelDeletionException(id);
         }
     }
 

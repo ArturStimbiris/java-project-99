@@ -109,15 +109,15 @@ public class TaskStatusControllerTest {
     @Test
     void testCreate() throws Exception {
         String statusData = "{\"name\":\"New Status\",\"slug\":\"new_status\"}";
-
         mockMvc.perform(post("/api/task_statuses")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(statusData)
                 .header(AUTH, BEARER + token))
                 .andExpect(status().isCreated());
 
-        TaskStatus status = taskStatusRepository.findBySlug("new_status").orElse(null);
-        assertThat(status).isNotNull();
+        TaskStatus status = taskStatusRepository.findBySlug("new_status")
+                .orElseThrow(() -> new AssertionError("TaskStatus not found"));
+
         assertThat(status.getName()).isEqualTo("New Status");
     }
 

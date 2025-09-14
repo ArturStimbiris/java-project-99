@@ -106,15 +106,15 @@ public class LabelControllerTest {
     @Test
     void testCreate() throws Exception {
         String labelData = "{\"name\":\"New Label\"}";
-
         mockMvc.perform(post("/api/labels")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(labelData)
                 .header(AUTH, BEARER + token))
                 .andExpect(status().isCreated());
 
-        Label label = labelRepository.findByName("New Label").orElse(null);
-        assertThat(label).isNotNull();
+        Label label = labelRepository.findByName("New Label")
+                .orElseThrow(() -> new AssertionError("Label not found"));
+
         assertThat(label.getName()).isEqualTo("New Label");
     }
 

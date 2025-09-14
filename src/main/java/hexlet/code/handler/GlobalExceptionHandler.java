@@ -8,6 +8,7 @@ import hexlet.code.exception.TaskStatusDeletionException;
 import hexlet.code.exception.TaskStatusNotFoundException;
 import hexlet.code.exception.UserDeletionException;
 import hexlet.code.exception.UserNotFoundException;
+import hexlet.code.exception.LabelDeletionException;
 import io.sentry.Sentry;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -89,5 +90,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleException(Exception e) {
         Sentry.captureException(e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+    }
+
+    @ExceptionHandler(LabelDeletionException.class)
+    public ResponseEntity<String> handleLabelDeletionException(LabelDeletionException e) {
+        Sentry.captureException(e);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 }

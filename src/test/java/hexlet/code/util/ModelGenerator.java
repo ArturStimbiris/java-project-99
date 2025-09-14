@@ -3,7 +3,11 @@ package hexlet.code.util;
 import hexlet.code.model.User;
 import java.util.Random;
 
-public class ModelGenerator {
+public final class ModelGenerator {
+
+    private ModelGenerator() {
+    }
+
     private static final Random RANDOM = new Random();
     private static final String[] FIRST_NAMES = {"John", "Jane", "Alex", "Emily", "Michael", "Sarah"};
     private static final String[] LAST_NAMES = {"Doe", "Smith", "Johnson", "Williams", "Brown", "Jones"};

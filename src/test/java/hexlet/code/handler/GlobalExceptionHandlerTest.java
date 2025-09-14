@@ -8,6 +8,7 @@ import hexlet.code.exception.TaskStatusDeletionException;
 import hexlet.code.exception.TaskStatusNotFoundException;
 import hexlet.code.exception.UserDeletionException;
 import hexlet.code.exception.UserNotFoundException;
+import hexlet.code.exception.LabelDeletionException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -149,5 +150,14 @@ public class GlobalExceptionHandlerTest {
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertEquals("General error", response.getBody());
+    }
+
+    @Test
+    void testHandleLabelDeletionException() {
+        LabelDeletionException ex = new LabelDeletionException(42L);
+        ResponseEntity<String> response = globalExceptionHandler.handleLabelDeletionException(ex);
+
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertEquals("Cannot delete label with id 42 because it has associated tasks", response.getBody());
     }
 }

@@ -1,25 +1,33 @@
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:21-jdk AS builder
 
-ARG GRADLE_VERSION=8.7
+RUN groupadd -r appuser && useradd -r -g appuser appuser
 
-RUN apt-get update && apt-get install -yq unzip
+WORKDIR /build
 
-RUN wget -q https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
-    && unzip gradle-${GRADLE_VERSION}-bin.zip \
-    && rm gradle-${GRADLE_VERSION}-bin.zip
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle.kts .
+COPY settings.gradle.kts .
+COPY src src
 
-ENV GRADLE_HOME=/opt/gradle
+RUN chown -R appuser:appuser /build
 
-RUN mv gradle-${GRADLE_VERSION} ${GRADLE_HOME}
+USER appuser
 
-ENV PATH=$PATH:$GRADLE_HOME/bin
+RUN ./gradlew --version
 
-WORKDIR .
+RUN ./gradlew bootJar
 
-COPY . .
+FROM eclipse-temurin:21-jre
 
-RUN gradle bootJar
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+WORKDIR /app
+
+COPY --from=builder --chown=appuser:appuser /build/build/libs/app-0.0.1-SNAPSHOT.jar app.jar
+
+USER appuser
 
 EXPOSE 8080
 
-ENTRYPOINT ["java","-jar","/build/libs/app-0.0.1-SNAPSHOT.jar","--spring.profiles.active=production"]
+ENTRYPOINT ["java", "-jar", "app.jar", "--spring.profiles.active=production"]
