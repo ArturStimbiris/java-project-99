@@ -3,6 +3,7 @@ package hexlet.code.service;
 import hexlet.code.dto.UserCreateDTO;
 import hexlet.code.dto.UserDTO;
 import hexlet.code.dto.UserUpdateDTO;
+import hexlet.code.exception.UserDeletionException;
 import hexlet.code.exception.UserNotFoundException;
 import hexlet.code.mapper.UserMapper;
 import hexlet.code.model.User;
@@ -68,7 +69,7 @@ public class UserService {
         try {
             userRepository.delete(user);
         } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("Cannot delete user with assigned tasks");
+            throw new UserDeletionException(id);
         }
     }
 

@@ -1,9 +1,13 @@
 package hexlet.code.handler;
 
-import hexlet.code.exception.UserNotFoundException;
-import hexlet.code.exception.TaskNotFoundException;
-import hexlet.code.exception.TaskStatusNotFoundException;
 import hexlet.code.exception.LabelNotFoundException;
+import hexlet.code.exception.RsaKeyLoadingException;
+import hexlet.code.exception.SentryTestException;
+import hexlet.code.exception.TaskNotFoundException;
+import hexlet.code.exception.TaskStatusDeletionException;
+import hexlet.code.exception.TaskStatusNotFoundException;
+import hexlet.code.exception.UserDeletionException;
+import hexlet.code.exception.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,9 +65,9 @@ public class GlobalExceptionHandlerTest {
     void testHandleUserNotFoundException() {
         UserNotFoundException ex = new UserNotFoundException(1L);
 
-        ResponseEntity<String> response = globalExceptionHandler.handleException(ex);
+        ResponseEntity<String> response = globalExceptionHandler.handleUserNotFoundException(ex);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals("User with id 1 not found", response.getBody());
     }
 
@@ -71,9 +75,9 @@ public class GlobalExceptionHandlerTest {
     void testHandleTaskNotFoundException() {
         TaskNotFoundException ex = new TaskNotFoundException(1L);
 
-        ResponseEntity<String> response = globalExceptionHandler.handleException(ex);
+        ResponseEntity<String> response = globalExceptionHandler.handleTaskNotFoundException(ex);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals("Task with id 1 not found", response.getBody());
     }
 
@@ -81,9 +85,9 @@ public class GlobalExceptionHandlerTest {
     void testHandleTaskStatusNotFoundException() {
         TaskStatusNotFoundException ex = new TaskStatusNotFoundException(1L);
 
-        ResponseEntity<String> response = globalExceptionHandler.handleException(ex);
+        ResponseEntity<String> response = globalExceptionHandler.handleTaskStatusNotFoundException(ex);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals("TaskStatus with id 1 not found", response.getBody());
     }
 
@@ -91,9 +95,59 @@ public class GlobalExceptionHandlerTest {
     void testHandleLabelNotFoundException() {
         LabelNotFoundException ex = new LabelNotFoundException(1L);
 
+        ResponseEntity<String> response = globalExceptionHandler.handleLabelNotFoundException(ex);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("Label with id 1 not found", response.getBody());
+    }
+
+    @Test
+    void testHandleUserDeletionException() {
+        UserDeletionException ex = new UserDeletionException(1L);
+
+        ResponseEntity<String> response = globalExceptionHandler.handleUserDeletionException(ex);
+
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertEquals("Cannot delete user with id 1 because they have assigned tasks", response.getBody());
+    }
+
+    @Test
+    void testHandleTaskStatusDeletionException() {
+        TaskStatusDeletionException ex = new TaskStatusDeletionException(1L);
+
+        ResponseEntity<String> response = globalExceptionHandler.handleTaskStatusDeletionException(ex);
+
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertEquals("Cannot delete task status with id 1 because it has associated tasks", response.getBody());
+    }
+
+    @Test
+    void testHandleRsaKeyLoadingException() {
+        RsaKeyLoadingException ex = new RsaKeyLoadingException("Error loading key", new RuntimeException());
+
+        ResponseEntity<String> response = globalExceptionHandler.handleRsaKeyLoadingException(ex);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals("Error loading key", response.getBody());
+    }
+
+    @Test
+    void testHandleSentryTestException() {
+        SentryTestException ex = new SentryTestException("Test exception for Sentry");
+
+        ResponseEntity<String> response = globalExceptionHandler.handleSentryTestException(ex);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals("Test exception for Sentry", response.getBody());
+    }
+
+    @Test
+    void testHandleGeneralException() {
+        Exception ex = new Exception("General error");
+
         ResponseEntity<String> response = globalExceptionHandler.handleException(ex);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Label with id 1 not found", response.getBody());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals("General error", response.getBody());
     }
 }

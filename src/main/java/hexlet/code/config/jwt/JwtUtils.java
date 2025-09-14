@@ -10,7 +10,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-
+import hexlet.code.exception.RsaKeyLoadingException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -51,7 +51,7 @@ public class JwtUtils {
             privateKey = loadPrivateKey(privateKeyResource);
             publicKey = loadPublicKey(publicKeyResource);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to load RSA keys", e);
+            throw new RsaKeyLoadingException("Failed to load RSA keys", e);
         }
     }
 

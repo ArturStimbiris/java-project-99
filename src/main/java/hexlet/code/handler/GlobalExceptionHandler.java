@@ -1,5 +1,13 @@
 package hexlet.code.handler;
 
+import hexlet.code.exception.LabelNotFoundException;
+import hexlet.code.exception.RsaKeyLoadingException;
+import hexlet.code.exception.SentryTestException;
+import hexlet.code.exception.TaskNotFoundException;
+import hexlet.code.exception.TaskStatusDeletionException;
+import hexlet.code.exception.TaskStatusNotFoundException;
+import hexlet.code.exception.UserDeletionException;
+import hexlet.code.exception.UserNotFoundException;
 import io.sentry.Sentry;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +37,57 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException e) {
+        Sentry.captureException(e);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(TaskNotFoundException.class)
+    public ResponseEntity<String> handleTaskNotFoundException(TaskNotFoundException e) {
+        Sentry.captureException(e);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(TaskStatusNotFoundException.class)
+    public ResponseEntity<String> handleTaskStatusNotFoundException(TaskStatusNotFoundException e) {
+        Sentry.captureException(e);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(LabelNotFoundException.class)
+    public ResponseEntity<String> handleLabelNotFoundException(LabelNotFoundException e) {
+        Sentry.captureException(e);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(UserDeletionException.class)
+    public ResponseEntity<String> handleUserDeletionException(UserDeletionException e) {
+        Sentry.captureException(e);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    @ExceptionHandler(TaskStatusDeletionException.class)
+    public ResponseEntity<String> handleTaskStatusDeletionException(TaskStatusDeletionException e) {
+        Sentry.captureException(e);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    @ExceptionHandler(RsaKeyLoadingException.class)
+    public ResponseEntity<String> handleRsaKeyLoadingException(RsaKeyLoadingException e) {
+        Sentry.captureException(e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+    }
+
+    @ExceptionHandler(SentryTestException.class)
+    public ResponseEntity<String> handleSentryTestException(SentryTestException e) {
+        Sentry.captureException(e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
         Sentry.captureException(e);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
 }

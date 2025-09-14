@@ -3,6 +3,7 @@ package hexlet.code.service;
 import hexlet.code.dto.TaskStatusCreateDTO;
 import hexlet.code.dto.TaskStatusDTO;
 import hexlet.code.dto.TaskStatusUpdateDTO;
+import hexlet.code.exception.TaskStatusDeletionException;
 import hexlet.code.exception.TaskStatusNotFoundException;
 import hexlet.code.mapper.TaskStatusMapper;
 import hexlet.code.model.TaskStatus;
@@ -61,7 +62,7 @@ public class TaskStatusService {
         try {
             taskStatusRepository.delete(taskStatus);
         } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("Cannot delete task status with associated tasks");
+            throw new TaskStatusDeletionException(id, e);
         }
     }
 

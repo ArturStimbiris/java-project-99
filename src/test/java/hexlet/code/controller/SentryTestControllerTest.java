@@ -23,11 +23,4 @@ public class SentryTestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("Exception caught and sent to Sentry! Check your Sentry dashboard."));
     }
-
-    @Test
-    void testSentryTest2() throws Exception {
-        mockMvc.perform(get("/sentry-test-2"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Array index error sent to Sentry! Check your Sentry dashboard."));
-    }
 }

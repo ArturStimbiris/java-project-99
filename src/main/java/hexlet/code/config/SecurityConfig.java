@@ -43,7 +43,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/api/login").permitAll()
-                        .requestMatchers("/", "/index.html", "/assets/**", "/sentry-test", "/sentry-test-2").permitAll()
+                        .requestMatchers("/", "/index.html", "/assets/**", "/sentry-test").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
