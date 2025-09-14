@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.ManyToMany;
 import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.AllArgsConstructor;
@@ -40,6 +41,8 @@ public class Label {
     private Instant createdAt;
 
     @ManyToMany(mappedBy = "labels")
+    @JsonIgnore
+    @ToString.Exclude
     private Set<Task> tasks;
 
     @Override

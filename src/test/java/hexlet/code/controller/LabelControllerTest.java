@@ -30,6 +30,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureMockMvc
 public class LabelControllerTest {
 
+    private static final String TEST_LABEL = "Test Label";
+    private static final String AUTH = "Authorization";
+    private static final String BEARER = "Bearer ";
+    private static final String API_LABELS_ID = "/api/labels/{id}";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -77,25 +82,25 @@ public class LabelControllerTest {
     @Test
     void testIndex() throws Exception {
         Label label = new Label();
-        label.setName("Test Label");
+        label.setName(TEST_LABEL);
         labelRepository.save(label);
 
         mockMvc.perform(get("/api/labels")
-                .header("Authorization", "Bearer " + token))
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Test Label"));
+                .andExpect(jsonPath("$[0].name").value(TEST_LABEL));
     }
 
     @Test
     void testShow() throws Exception {
         Label label = new Label();
-        label.setName("Test Label");
+        label.setName(TEST_LABEL);
         labelRepository.save(label);
 
-        mockMvc.perform(get("/api/labels/{id}", label.getId())
-                .header("Authorization", "Bearer " + token))
+        mockMvc.perform(get(API_LABELS_ID, label.getId())
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Test Label"));
+                .andExpect(jsonPath("$.name").value(TEST_LABEL));
     }
 
     @Test
@@ -105,7 +110,7 @@ public class LabelControllerTest {
         mockMvc.perform(post("/api/labels")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(labelData)
-                .header("Authorization", "Bearer " + token))
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isCreated());
 
         Label label = labelRepository.findByName("New Label").orElse(null);
@@ -121,10 +126,10 @@ public class LabelControllerTest {
 
         String updateData = "{\"name\":\"Updated Label\"}";
 
-        mockMvc.perform(put("/api/labels/{id}", label.getId())
+        mockMvc.perform(put(API_LABELS_ID, label.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updateData)
-                .header("Authorization", "Bearer " + token))
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isOk());
 
         Label updatedLabel = labelRepository.findById(label.getId()).orElse(null);
@@ -135,11 +140,11 @@ public class LabelControllerTest {
     @Test
     void testDestroy() throws Exception {
         Label label = new Label();
-        label.setName("Test Label");
+        label.setName(TEST_LABEL);
         labelRepository.save(label);
 
-        mockMvc.perform(delete("/api/labels/{id}", label.getId())
-                .header("Authorization", "Bearer " + token))
+        mockMvc.perform(delete(API_LABELS_ID, label.getId())
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isNoContent());
 
         assertThat(labelRepository.existsById(label.getId())).isFalse();

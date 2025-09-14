@@ -30,6 +30,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureMockMvc
 public class TaskStatusControllerTest {
 
+    private static final String TEST_STATUS = "Test Status";
+    private static final String TEST_1STATUS = "test_status";
+    private static final String AUTH = "Authorization";
+    private static final String BEARER = "Bearer ";
+    private static final String API_TASK_1STATUSES_ID = "/api/task_statuses/{id}";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -77,27 +83,27 @@ public class TaskStatusControllerTest {
     @Test
     void testIndex() throws Exception {
         TaskStatus status = new TaskStatus();
-        status.setName("Test Status");
-        status.setSlug("test_status");
+        status.setName(TEST_STATUS);
+        status.setSlug(TEST_1STATUS);
         taskStatusRepository.save(status);
 
         mockMvc.perform(get("/api/task_statuses")
-                .header("Authorization", "Bearer " + token))
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Test Status"));
+                .andExpect(jsonPath("$[0].name").value(TEST_STATUS));
     }
 
     @Test
     void testShow() throws Exception {
         TaskStatus status = new TaskStatus();
-        status.setName("Test Status");
-        status.setSlug("test_status");
+        status.setName(TEST_STATUS);
+        status.setSlug(TEST_1STATUS);
         taskStatusRepository.save(status);
 
-        mockMvc.perform(get("/api/task_statuses/{id}", status.getId())
-                .header("Authorization", "Bearer " + token))
+        mockMvc.perform(get(API_TASK_1STATUSES_ID, status.getId())
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Test Status"));
+                .andExpect(jsonPath("$.name").value(TEST_STATUS));
     }
 
     @Test
@@ -107,7 +113,7 @@ public class TaskStatusControllerTest {
         mockMvc.perform(post("/api/task_statuses")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(statusData)
-                .header("Authorization", "Bearer " + token))
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isCreated());
 
         TaskStatus status = taskStatusRepository.findBySlug("new_status").orElse(null);
@@ -124,10 +130,10 @@ public class TaskStatusControllerTest {
 
         String updateData = "{\"name\":\"Updated Status\"}";
 
-        mockMvc.perform(put("/api/task_statuses/{id}", status.getId())
+        mockMvc.perform(put(API_TASK_1STATUSES_ID, status.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updateData)
-                .header("Authorization", "Bearer " + token))
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isOk());
 
         TaskStatus updatedStatus = taskStatusRepository.findById(status.getId()).orElse(null);
@@ -138,12 +144,12 @@ public class TaskStatusControllerTest {
     @Test
     void testDestroy() throws Exception {
         TaskStatus status = new TaskStatus();
-        status.setName("Test Status");
-        status.setSlug("test_status");
+        status.setName(TEST_STATUS);
+        status.setSlug(TEST_1STATUS);
         taskStatusRepository.save(status);
 
-        mockMvc.perform(delete("/api/task_statuses/{id}", status.getId())
-                .header("Authorization", "Bearer " + token))
+        mockMvc.perform(delete(API_TASK_1STATUSES_ID, status.getId())
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isNoContent());
 
         assertThat(taskStatusRepository.existsById(status.getId())).isFalse();

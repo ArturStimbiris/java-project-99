@@ -28,6 +28,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureMockMvc
 class UserControllerTest {
 
+    private static final String EMAIL = "admin@example.com";
+    private static final String AUTH = "Authorization";
+    private static final String BEARER = "Bearer ";
+    private static final String API_USERS_ID = "/api/users/{id}";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -58,30 +63,30 @@ class UserControllerTest {
         taskRepository.deleteAll();
         userRepository.deleteAll();
         User user = new User();
-        user.setEmail("admin@example.com");
+        user.setEmail(EMAIL);
         user.setPassword(passwordEncoder.encode("password"));
         user.setFirstName("Admin");
         user.setLastName("User");
         userRepository.save(user);
 
-        token = getToken("admin@example.com", "password");
+        token = getToken(EMAIL, "password");
     }
 
     @Test
     void testIndex() throws Exception {
         mockMvc.perform(get("/api/users")
-                .header("Authorization", "Bearer " + token))
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isOk());
     }
 
     @Test
     void testShow() throws Exception {
-        User user = userRepository.findByEmail("admin@example.com").get();
+        User user = userRepository.findByEmail(EMAIL).get();
 
-        mockMvc.perform(get("/api/users/{id}", user.getId())
-                .header("Authorization", "Bearer " + token))
+        mockMvc.perform(get(API_USERS_ID, user.getId())
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("admin@example.com"));
+                .andExpect(jsonPath("$.email").value(EMAIL));
     }
 
     @Test
@@ -92,7 +97,7 @@ class UserControllerTest {
         mockMvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(userData)
-                .header("Authorization", "Bearer " + token))
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isCreated());
 
         User user = userRepository.findByEmail("test@example.com").get();
@@ -101,13 +106,13 @@ class UserControllerTest {
 
     @Test
     void testUpdate() throws Exception {
-        User user = userRepository.findByEmail("admin@example.com").get();
+        User user = userRepository.findByEmail(EMAIL).get();
         String updateData = "{\"email\":\"new@example.com\",\"firstName\":\"New\",\"lastName\":\"Name\"}";
 
-        mockMvc.perform(put("/api/users/{id}", user.getId())
+        mockMvc.perform(put(API_USERS_ID, user.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updateData)
-                .header("Authorization", "Bearer " + token))
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isOk());
 
         User updatedUser = userRepository.findById(user.getId()).get();
@@ -116,10 +121,10 @@ class UserControllerTest {
 
     @Test
     void testDestroy() throws Exception {
-        User user = userRepository.findByEmail("admin@example.com").get();
+        User user = userRepository.findByEmail(EMAIL).get();
 
-        mockMvc.perform(delete("/api/users/{id}", user.getId())
-                .header("Authorization", "Bearer " + token))
+        mockMvc.perform(delete(API_USERS_ID, user.getId())
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isNoContent());
 
         assertThat(userRepository.existsById(user.getId())).isFalse();

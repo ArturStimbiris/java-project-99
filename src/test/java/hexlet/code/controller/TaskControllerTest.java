@@ -33,6 +33,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureMockMvc
 public class TaskControllerTest {
 
+    private static final String PWD = "password";
+    private static final String TEST_TASK = "Test Task";
+    private static final String TEST_CONTENT = "Test Content";
+    private static final String AUTH = "Authorization";
+    private static final String BEARER = "Bearer ";
+    private static final String TITLE = "$[0].title";
+    private static final String API_TASKS_ID = "/api/tasks/{id}";
+    private static final String TASK_1 = "Task 1";
+    private static final String TASK_2 = "Task 2";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -76,7 +86,7 @@ public class TaskControllerTest {
 
         testUser = new User();
         testUser.setEmail("admin@example.com");
-        testUser.setPassword(passwordEncoder.encode("password"));
+        testUser.setPassword(passwordEncoder.encode(PWD));
         testUser.setFirstName("Admin");
         testUser.setLastName("User");
         userRepository.save(testUser);
@@ -90,37 +100,37 @@ public class TaskControllerTest {
         testLabel.setName("Test Label");
         labelRepository.save(testLabel);
 
-        token = getToken("admin@example.com", "password");
+        token = getToken("admin@example.com", PWD);
     }
 
     @Test
     void testIndex() throws Exception {
         Task task = new Task();
-        task.setTitle("Test Task");
-        task.setContent("Test Content");
+        task.setTitle(TEST_TASK);
+        task.setContent(TEST_CONTENT);
         task.setTaskStatus(testStatus);
         task.setAssignee(testUser);
         taskRepository.save(task);
 
         mockMvc.perform(get("/api/tasks")
-                .header("Authorization", "Bearer " + token))
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value("Test Task"));
+                .andExpect(jsonPath(TITLE).value(TEST_TASK));
     }
 
     @Test
     void testShow() throws Exception {
         Task task = new Task();
-        task.setTitle("Test Task");
-        task.setContent("Test Content");
+        task.setTitle(TEST_TASK);
+        task.setContent(TEST_CONTENT);
         task.setTaskStatus(testStatus);
         task.setAssignee(testUser);
         taskRepository.save(task);
 
-        mockMvc.perform(get("/api/tasks/{id}", task.getId())
-                .header("Authorization", "Bearer " + token))
+        mockMvc.perform(get(API_TASKS_ID, task.getId())
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("Test Task"));
+                .andExpect(jsonPath("$.title").value(TEST_TASK));
     }
 
     @Test
@@ -131,7 +141,7 @@ public class TaskControllerTest {
         mockMvc.perform(post("/api/tasks")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(taskData)
-                .header("Authorization", "Bearer " + token))
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isCreated());
 
         Task task = taskRepository.findAll().get(0);
@@ -150,10 +160,10 @@ public class TaskControllerTest {
 
         String updateData = "{\"title\":\"Updated Task\"}";
 
-        mockMvc.perform(put("/api/tasks/{id}", task.getId())
+        mockMvc.perform(put(API_TASKS_ID, task.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updateData)
-                .header("Authorization", "Bearer " + token))
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isOk());
 
         Task updatedTask = taskRepository.findById(task.getId()).orElse(null);
@@ -164,14 +174,14 @@ public class TaskControllerTest {
     @Test
     void testDestroy() throws Exception {
         Task task = new Task();
-        task.setTitle("Test Task");
-        task.setContent("Test Content");
+        task.setTitle(TEST_TASK);
+        task.setContent(TEST_CONTENT);
         task.setTaskStatus(testStatus);
         task.setAssignee(testUser);
         taskRepository.save(task);
 
-        mockMvc.perform(delete("/api/tasks/{id}", task.getId())
-                .header("Authorization", "Bearer " + token))
+        mockMvc.perform(delete(API_TASKS_ID, task.getId())
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isNoContent());
 
         assertThat(taskRepository.existsById(task.getId())).isFalse();
@@ -181,22 +191,22 @@ public class TaskControllerTest {
     void testFilterByTitle() throws Exception {
         Task task1 = new Task();
         task1.setTitle("Create new feature");
-        task1.setContent("Test Content");
+        task1.setContent(TEST_CONTENT);
         task1.setTaskStatus(testStatus);
         task1.setAssignee(testUser);
         taskRepository.save(task1);
 
         Task task2 = new Task();
         task2.setTitle("Fix bug");
-        task2.setContent("Test Content");
+        task2.setContent(TEST_CONTENT);
         task2.setTaskStatus(testStatus);
         task2.setAssignee(testUser);
         taskRepository.save(task2);
 
         mockMvc.perform(get("/api/tasks?titleCont=feature")
-                .header("Authorization", "Bearer " + token))
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value("Create new feature"))
+                .andExpect(jsonPath(TITLE).value("Create new feature"))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$").value(org.hamcrest.Matchers.hasSize(1)));
     }
@@ -204,30 +214,30 @@ public class TaskControllerTest {
     @Test
     void testFilterByAssignee() throws Exception {
         Task task1 = new Task();
-        task1.setTitle("Task 1");
-        task1.setContent("Test Content");
+        task1.setTitle(TASK_1);
+        task1.setContent(TEST_CONTENT);
         task1.setTaskStatus(testStatus);
         task1.setAssignee(testUser);
         taskRepository.save(task1);
 
         User anotherUser = new User();
         anotherUser.setEmail("another@example.com");
-        anotherUser.setPassword(passwordEncoder.encode("password"));
+        anotherUser.setPassword(passwordEncoder.encode(PWD));
         anotherUser.setFirstName("Another");
         anotherUser.setLastName("User");
         userRepository.save(anotherUser);
 
         Task task2 = new Task();
-        task2.setTitle("Task 2");
-        task2.setContent("Test Content");
+        task2.setTitle(TASK_2);
+        task2.setContent(TEST_CONTENT);
         task2.setTaskStatus(testStatus);
         task2.setAssignee(anotherUser);
         taskRepository.save(task2);
 
         mockMvc.perform(get("/api/tasks?assigneeId=" + testUser.getId())
-                .header("Authorization", "Bearer " + token))
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value("Task 1"))
+                .andExpect(jsonPath(TITLE).value(TASK_1))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$").value(org.hamcrest.Matchers.hasSize(1)));
     }
@@ -240,23 +250,23 @@ public class TaskControllerTest {
         taskStatusRepository.save(anotherStatus);
 
         Task task1 = new Task();
-        task1.setTitle("Task 1");
-        task1.setContent("Test Content");
+        task1.setTitle(TASK_1);
+        task1.setContent(TEST_CONTENT);
         task1.setTaskStatus(testStatus);
         task1.setAssignee(testUser);
         taskRepository.save(task1);
 
         Task task2 = new Task();
-        task2.setTitle("Task 2");
-        task2.setContent("Test Content");
+        task2.setTitle(TASK_2);
+        task2.setContent(TEST_CONTENT);
         task2.setTaskStatus(anotherStatus);
         task2.setAssignee(testUser);
         taskRepository.save(task2);
 
         mockMvc.perform(get("/api/tasks?status=" + testStatus.getSlug())
-                .header("Authorization", "Bearer " + token))
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value("Task 1"))
+                .andExpect(jsonPath(TITLE).value(TASK_1))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$").value(org.hamcrest.Matchers.hasSize(1)));
     }
@@ -264,8 +274,8 @@ public class TaskControllerTest {
     @Test
     void testFilterByLabel() throws Exception {
         Task task1 = new Task();
-        task1.setTitle("Task 1");
-        task1.setContent("Test Content");
+        task1.setTitle(TASK_1);
+        task1.setContent(TEST_CONTENT);
         task1.setTaskStatus(testStatus);
         task1.setAssignee(testUser);
         task1.getLabels().add(testLabel);
@@ -276,17 +286,17 @@ public class TaskControllerTest {
         labelRepository.save(anotherLabel);
 
         Task task2 = new Task();
-        task2.setTitle("Task 2");
-        task2.setContent("Test Content");
+        task2.setTitle(TASK_2);
+        task2.setContent(TEST_CONTENT);
         task2.setTaskStatus(testStatus);
         task2.setAssignee(testUser);
         task2.getLabels().add(anotherLabel);
         taskRepository.save(task2);
 
         mockMvc.perform(get("/api/tasks?labelId=" + testLabel.getId())
-                .header("Authorization", "Bearer " + token))
+                .header(AUTH, BEARER + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value("Task 1"))
+                .andExpect(jsonPath(TITLE).value(TASK_1))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$").value(org.hamcrest.Matchers.hasSize(1)));
     }
