@@ -9,6 +9,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import hexlet.code.exception.RsaKeyLoadingException;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -34,6 +35,12 @@ public class JwtUtils {
     @Value("${rsa.public-key:classpath:certs/public.pem}")
     private Resource publicKeyResource;
 
+    @Value("${RSA_PRIVATE_KEY:}")
+    private String privateKeyString;
+
+    @Value("${RSA_PUBLIC_KEY:}")
+    private String publicKeyString;
+
     @Value("${rsa.expiration:86400000}")
     private Long expiration;
 
@@ -43,8 +50,20 @@ public class JwtUtils {
     @PostConstruct
     public void init() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         try {
-            privateKey = loadPrivateKey(privateKeyResource);
-            publicKey = loadPublicKey(publicKeyResource);
+            if (privateKeyString != null && !privateKeyString.isEmpty()
+                && publicKeyString != null && !publicKeyString.isEmpty()) {
+                privateKey = loadPrivateKeyFromString(privateKeyString);
+                publicKey = loadPublicKeyFromString(publicKeyString);
+                log.info("RSA keys loaded from environment variables");
+            } else if (privateKeyResource.exists() && publicKeyResource.exists()) {
+                privateKey = loadPrivateKey(privateKeyResource);
+                publicKey = loadPublicKey(publicKeyResource);
+                log.info("RSA keys loaded from file resources");
+            } else {
+                throw new RsaKeyLoadingException(
+                    "Failed to load RSA keys: No keys found in environment variables or file resources",
+                    new RuntimeException("RSA keys not available"));
+            }
         } catch (Exception e) {
             throw new RsaKeyLoadingException("Failed to load RSA keys", e);
         }
@@ -53,24 +72,36 @@ public class JwtUtils {
     private Key loadPrivateKey(Resource resource)
             throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         byte[] keyBytes = resource.getInputStream().readAllBytes();
-        String key = new String(keyBytes, StandardCharsets.UTF_8)
-                .replace("-----BEGIN PRIVATE KEY-----", "")
-                .replace("-----END PRIVATE KEY-----", "")
-                .replaceAll("\\s", "");
-        byte[] decodedKey = Base64.getDecoder().decode(key);
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decodedKey);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        return keyFactory.generatePrivate(keySpec);
+        String key = new String(keyBytes, StandardCharsets.UTF_8);
+        return loadPrivateKeyFromString(key);
     }
 
     private Key loadPublicKey(Resource resource)
             throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         byte[] keyBytes = resource.getInputStream().readAllBytes();
-        String key = new String(keyBytes, StandardCharsets.UTF_8)
+        String key = new String(keyBytes, StandardCharsets.UTF_8);
+        return loadPublicKeyFromString(key);
+    }
+
+    private Key loadPrivateKeyFromString(String key)
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+        String privateKeyPEM = key
+                .replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "")
+                .replaceAll("\\s", "");
+        byte[] decodedKey = Base64.getDecoder().decode(privateKeyPEM);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decodedKey);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePrivate(keySpec);
+    }
+
+    private Key loadPublicKeyFromString(String key)
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+        String publicKeyPEM = key
                 .replace("-----BEGIN PUBLIC KEY-----", "")
                 .replace("-----END PUBLIC KEY-----", "")
                 .replaceAll("\\s", "");
-        byte[] decodedKey = Base64.getDecoder().decode(key);
+        byte[] decodedKey = Base64.getDecoder().decode(publicKeyPEM);
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decodedKey);
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         return keyFactory.generatePublic(keySpec);
