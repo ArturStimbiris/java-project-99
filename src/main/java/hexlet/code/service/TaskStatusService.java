@@ -7,7 +7,6 @@ import hexlet.code.exception.TaskStatusDeletionException;
 import hexlet.code.exception.TaskStatusNotFoundException;
 import hexlet.code.mapper.TaskStatusMapper;
 import hexlet.code.model.TaskStatus;
-import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,7 +19,6 @@ import java.util.List;
 public class TaskStatusService {
 
     private final TaskStatusRepository taskStatusRepository;
-    private final TaskRepository taskRepository;
     private final TaskStatusMapper taskStatusMapper;
 
     public List<TaskStatusDTO> getAll() {

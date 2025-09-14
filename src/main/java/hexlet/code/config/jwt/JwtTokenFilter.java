@@ -42,7 +42,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
-                if (jwtUtils.validateToken(jwt)) {
+                if (Boolean.TRUE.equals(jwtUtils.validateToken(jwt))) {
                     var authorities = List.of(new SimpleGrantedAuthority("USER"));
                     var userDetails = org.springframework.security.core.userdetails.User.builder()
                             .username(username)

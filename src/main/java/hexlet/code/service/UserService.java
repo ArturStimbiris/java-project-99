@@ -7,7 +7,6 @@ import hexlet.code.exception.UserDeletionException;
 import hexlet.code.exception.UserNotFoundException;
 import hexlet.code.mapper.UserMapper;
 import hexlet.code.model.User;
-import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,7 +21,6 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final TaskRepository taskRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
