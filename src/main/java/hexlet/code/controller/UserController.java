@@ -29,7 +29,6 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<UserDTO>> index() {
         List<UserDTO> users = userService.getAll();
         return ResponseEntity.ok()
@@ -38,7 +37,6 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
     public UserDTO show(@PathVariable Long id) {
         return userService.findById(id);
     }

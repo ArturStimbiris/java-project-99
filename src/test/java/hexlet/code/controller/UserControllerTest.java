@@ -23,6 +23,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.hamcrest.Matchers;
+
 @ActiveProfiles("test")
 @SpringBootTest(classes = AppApplication.class)
 @AutoConfigureMockMvc
@@ -74,9 +76,13 @@ class UserControllerTest {
 
     @Test
     void testIndex() throws Exception {
+        int expectedSize = userRepository.findAll().size();
+
         mockMvc.perform(get("/api/users")
                 .header(AUTH, BEARER + token))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$", Matchers.hasSize(expectedSize)));
     }
 
     @Test

@@ -1,6 +1,7 @@
 package hexlet.code.config;
 
 import hexlet.code.config.jwt.JwtTokenFilter;
+import hexlet.code.config.jwt.JwtUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @AllArgsConstructor
 public class SecurityConfig {
 
-    private final JwtTokenFilter jwtTokenFilter;
+    private final JwtUtils jwtUtils;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -36,6 +37,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        JwtTokenFilter jwtTokenFilter = new JwtTokenFilter(jwtUtils);
+
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session
