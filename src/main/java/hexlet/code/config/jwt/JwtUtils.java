@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -60,13 +62,20 @@ public class JwtUtils {
                 publicKey = loadPublicKey(publicKeyResource);
                 log.info("RSA keys loaded from file resources");
             } else {
-                throw new RsaKeyLoadingException(
-                    "Failed to load RSA keys: No keys found in environment variables or file resources",
-                    new RuntimeException("RSA keys not available"));
+                log.warn("RSA keys not found, generating test keys");
+                KeyPair keyPair = generateTestKeyPair();
+                privateKey = keyPair.getPrivate();
+                publicKey = keyPair.getPublic();
             }
         } catch (Exception e) {
             throw new RsaKeyLoadingException("Failed to load RSA keys", e);
         }
+    }
+
+    private KeyPair generateTestKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        return keyPairGenerator.generateKeyPair();
     }
 
     private Key loadPrivateKey(Resource resource)

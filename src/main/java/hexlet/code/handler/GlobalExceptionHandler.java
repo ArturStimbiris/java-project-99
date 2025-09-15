@@ -10,8 +10,8 @@ import hexlet.code.exception.UserDeletionException;
 import hexlet.code.exception.UserNotFoundException;
 import hexlet.code.exception.LabelDeletionException;
 import io.sentry.Sentry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -19,19 +19,33 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.security.authentication.BadCredentialsException;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private final Environment environment;
+
+    public GlobalExceptionHandler(Environment environment) {
+        this.environment = environment;
+    }
+
+    private boolean isTestProfile() {
+        return Arrays.asList(environment.getActiveProfiles()).contains("test");
+    }
 
     private void safeCapture(Throwable ex) {
+        if (isTestProfile()) {
+            return;
+        }
+
         try {
             Sentry.captureException(ex);
         } catch (Throwable t) {
-            LOG.warn("Failed to capture exception to Sentry: {}", t.getMessage(), t);
+            log.warn("Failed to capture exception to Sentry: {}", t.getMessage(), t);
         }
     }
 
@@ -101,6 +115,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
         safeCapture(e);
+        log.error("Unhandled exception: {}", e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
 

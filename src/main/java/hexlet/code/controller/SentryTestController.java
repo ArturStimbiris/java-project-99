@@ -14,7 +14,11 @@ public class SentryTestController {
 
     private void safeCapture(Throwable ex) {
         try {
-            Sentry.captureException(ex);
+            if (Sentry.isEnabled()) {
+                Sentry.captureException(ex);
+            } else {
+                LOG.debug("Sentry is disabled; not capturing exception: {}", ex.getMessage());
+            }
         } catch (Throwable t) {
             LOG.warn("Failed to capture exception to Sentry: {}", t.getMessage(), t);
         }

@@ -1,3 +1,7 @@
+sentry:
+  dsn: ""
+  enabled: false
+
 rsa:
   private-key: classpath:certs/private.pem
   public-key: classpath:certs/public.pem

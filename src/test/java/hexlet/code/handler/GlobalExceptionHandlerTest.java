@@ -19,6 +19,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.core.env.Environment;
 
 import java.util.Map;
 
@@ -31,10 +32,13 @@ import static org.mockito.Mockito.when;
 public class GlobalExceptionHandlerTest {
 
     private GlobalExceptionHandler globalExceptionHandler;
+    private Environment environment;
 
     @BeforeEach
     void setUp() {
-        globalExceptionHandler = new GlobalExceptionHandler();
+        environment = mock(Environment.class);
+        when(environment.getActiveProfiles()).thenReturn(new String[]{});
+        globalExceptionHandler = new GlobalExceptionHandler(environment);
     }
 
     @Test

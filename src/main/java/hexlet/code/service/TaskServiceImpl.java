@@ -11,7 +11,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -30,15 +29,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskDTO> getWithFilters(String titleCont, Long assigneeId, String status, Long labelId) {
-        List<Task> tasks = taskRepository.findByFilters(assigneeId, status, labelId);
-
-        if (titleCont != null && !titleCont.isEmpty()) {
-            String finalTitleCont = titleCont.toLowerCase();
-            tasks = tasks.stream()
-                    .filter(task -> task.getTitle().toLowerCase().contains(finalTitleCont))
-                    .collect(Collectors.toList());
-        }
-
+        List<Task> tasks = taskRepository.findByFilters(assigneeId, status, labelId, titleCont);
         return tasks.stream()
                 .map(taskMapper::map)
                 .toList();
