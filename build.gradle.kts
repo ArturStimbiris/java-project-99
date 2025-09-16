@@ -24,6 +24,10 @@ plugins {
     id("io.sentry.jvm.gradle") version "5.9.0"
 }
 
+application {
+    mainClass.set("hexlet.code.AppApplication")
+}
+
 sonarqube {
     properties {
         property("sonar.gradle.skipCompile", "true")
