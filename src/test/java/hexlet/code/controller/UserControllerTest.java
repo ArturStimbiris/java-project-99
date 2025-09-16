@@ -1,6 +1,9 @@
 package hexlet.code.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.AppApplication;
+import hexlet.code.dto.UserDTO;
 import hexlet.code.model.User;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.UserRepository;
@@ -15,6 +18,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.List;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -23,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.hamcrest.Matchers;
+
 
 @ActiveProfiles("test")
 @SpringBootTest(classes = AppApplication.class)
@@ -46,6 +51,9 @@ class UserControllerTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private String token;
 
@@ -76,13 +84,27 @@ class UserControllerTest {
 
     @Test
     void testIndex() throws Exception {
-        int expectedSize = userRepository.findAll().size();
-
-        mockMvc.perform(get("/api/users")
+        MvcResult result = mockMvc.perform(get("/api/users")
                 .header(AUTH, BEARER + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", Matchers.hasSize(expectedSize)));
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        List<UserDTO> userDTOs = objectMapper.readValue(content, new TypeReference<List<UserDTO>>() { });
+
+        List<User> usersFromDb = userRepository.findAll();
+
+        assertThat(userDTOs).hasSize(usersFromDb.size());
+
+        List<String> userEmailsFromDb = usersFromDb.stream()
+                .map(User::getEmail)
+                .toList();
+
+        List<String> userEmailsFromResponse = userDTOs.stream()
+                .map(UserDTO::getEmail)
+                .toList();
+
+        assertThat(userEmailsFromResponse).containsExactlyElementsOf(userEmailsFromDb);
     }
 
     @Test

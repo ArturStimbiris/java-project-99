@@ -1,6 +1,9 @@
 package hexlet.code.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.AppApplication;
+import hexlet.code.dto.LabelDTO;
 import hexlet.code.model.Label;
 import hexlet.code.model.User;
 import hexlet.code.repository.LabelRepository;
@@ -16,6 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -49,6 +54,9 @@ public class LabelControllerTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private String token;
 
@@ -85,10 +93,27 @@ public class LabelControllerTest {
         label.setName(TEST_LABEL);
         labelRepository.save(label);
 
-        mockMvc.perform(get("/api/labels")
+        MvcResult result = mockMvc.perform(get("/api/labels")
                 .header(AUTH, BEARER + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value(TEST_LABEL));
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        List<LabelDTO> labelDTOs = objectMapper.readValue(content, new TypeReference<List<LabelDTO>>() { });
+
+        List<Label> labelsFromDb = labelRepository.findAll();
+
+        assertThat(labelDTOs).hasSize(labelsFromDb.size());
+
+        List<String> labelNamesFromDb = labelsFromDb.stream()
+                .map(Label::getName)
+                .toList();
+
+        List<String> labelNamesFromResponse = labelDTOs.stream()
+                .map(LabelDTO::getName)
+                .toList();
+
+        assertThat(labelNamesFromResponse).containsExactlyElementsOf(labelNamesFromDb);
     }
 
     @Test

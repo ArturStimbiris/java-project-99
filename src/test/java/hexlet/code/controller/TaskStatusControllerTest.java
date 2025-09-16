@@ -1,6 +1,9 @@
 package hexlet.code.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.AppApplication;
+import hexlet.code.dto.TaskStatusDTO;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.model.User;
 import hexlet.code.repository.TaskRepository;
@@ -16,6 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -50,6 +55,9 @@ public class TaskStatusControllerTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private String token;
 
@@ -87,10 +95,28 @@ public class TaskStatusControllerTest {
         status.setSlug(TEST_1STATUS);
         taskStatusRepository.save(status);
 
-        mockMvc.perform(get("/api/task_statuses")
+        MvcResult result = mockMvc.perform(get("/api/task_statuses")
                 .header(AUTH, BEARER + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value(TEST_STATUS));
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        List<TaskStatusDTO> taskStatusDTOs
+            = objectMapper.readValue(content, new TypeReference<List<TaskStatusDTO>>() { });
+
+        List<TaskStatus> taskStatusesFromDb = taskStatusRepository.findAll();
+
+        assertThat(taskStatusDTOs).hasSize(taskStatusesFromDb.size());
+
+        List<String> statusNamesFromDb = taskStatusesFromDb.stream()
+                .map(TaskStatus::getName)
+                .toList();
+
+        List<String> statusNamesFromResponse = taskStatusDTOs.stream()
+                .map(TaskStatusDTO::getName)
+                .toList();
+
+        assertThat(statusNamesFromResponse).containsExactlyElementsOf(statusNamesFromDb);
     }
 
     @Test

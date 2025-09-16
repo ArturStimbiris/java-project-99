@@ -1,6 +1,9 @@
 package hexlet.code.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.AppApplication;
+import hexlet.code.dto.TaskDTO;
 import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.model.User;
@@ -19,6 +22,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -60,6 +65,9 @@ public class TaskControllerTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private String token;
     private User testUser;
@@ -112,10 +120,27 @@ public class TaskControllerTest {
         task.setAssignee(testUser);
         taskRepository.save(task);
 
-        mockMvc.perform(get("/api/tasks")
+        MvcResult result = mockMvc.perform(get("/api/tasks")
                 .header(AUTH, BEARER + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath(TITLE).value(TEST_TASK));
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        List<TaskDTO> taskDTOs = objectMapper.readValue(content, new TypeReference<List<TaskDTO>>() { });
+
+        List<Task> tasksFromDb = taskRepository.findAll();
+
+        assertThat(taskDTOs).hasSize(tasksFromDb.size());
+
+        List<String> taskTitlesFromDb = tasksFromDb.stream()
+                .map(Task::getTitle)
+                .toList();
+
+        List<String> taskTitlesFromResponse = taskDTOs.stream()
+                .map(TaskDTO::getTitle)
+                .toList();
+
+        assertThat(taskTitlesFromResponse).containsExactlyElementsOf(taskTitlesFromDb);
     }
 
     @Test

@@ -6,6 +6,9 @@ import jakarta.persistence.criteria.JoinType;
 
 public class TaskSpecification {
 
+    private TaskSpecification() {
+    }
+
     public static Specification<Task> withTitleCont(String titleCont) {
         return (root, query, cb) -> {
             if (titleCont == null) {

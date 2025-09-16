@@ -9,7 +9,6 @@ import hexlet.code.exception.TaskStatusNotFoundException;
 import hexlet.code.exception.UserDeletionException;
 import hexlet.code.exception.UserNotFoundException;
 import hexlet.code.exception.LabelDeletionException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -31,18 +30,15 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class GlobalExceptionHandlerTest {
 
-    private GlobalExceptionHandler globalExceptionHandler;
-    private Environment environment;
-
-    @BeforeEach
-    void setUp() {
-        environment = mock(Environment.class);
+    private GlobalExceptionHandler createGlobalExceptionHandler() {
+        Environment environment = mock(Environment.class);
         when(environment.getActiveProfiles()).thenReturn(new String[]{});
-        globalExceptionHandler = new GlobalExceptionHandler(environment);
+        return new GlobalExceptionHandler(environment);
     }
 
     @Test
     void testHandleValidationExceptions() {
+        GlobalExceptionHandler globalExceptionHandler = createGlobalExceptionHandler();
         MethodArgumentNotValidException ex = mock(MethodArgumentNotValidException.class);
         BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "objectName");
         FieldError fieldError = new FieldError("objectName", "email", "must be a well-formed email address");
@@ -58,6 +54,7 @@ public class GlobalExceptionHandlerTest {
 
     @Test
     void testHandleBadCredentialsException() {
+        GlobalExceptionHandler globalExceptionHandler = createGlobalExceptionHandler();
         BadCredentialsException ex = new BadCredentialsException("Bad credentials");
 
         ResponseEntity<String> response = globalExceptionHandler.handleBadCredentialsException(ex);
@@ -68,6 +65,7 @@ public class GlobalExceptionHandlerTest {
 
     @Test
     void testHandleUserNotFoundException() {
+        GlobalExceptionHandler globalExceptionHandler = createGlobalExceptionHandler();
         UserNotFoundException ex = new UserNotFoundException(1L);
 
         ResponseEntity<String> response = globalExceptionHandler.handleUserNotFoundException(ex);
@@ -78,6 +76,7 @@ public class GlobalExceptionHandlerTest {
 
     @Test
     void testHandleTaskNotFoundException() {
+        GlobalExceptionHandler globalExceptionHandler = createGlobalExceptionHandler();
         TaskNotFoundException ex = new TaskNotFoundException(1L);
 
         ResponseEntity<String> response = globalExceptionHandler.handleTaskNotFoundException(ex);
@@ -88,6 +87,7 @@ public class GlobalExceptionHandlerTest {
 
     @Test
     void testHandleTaskStatusNotFoundException() {
+        GlobalExceptionHandler globalExceptionHandler = createGlobalExceptionHandler();
         TaskStatusNotFoundException ex = new TaskStatusNotFoundException(1L);
 
         ResponseEntity<String> response = globalExceptionHandler.handleTaskStatusNotFoundException(ex);
@@ -98,6 +98,7 @@ public class GlobalExceptionHandlerTest {
 
     @Test
     void testHandleLabelNotFoundException() {
+        GlobalExceptionHandler globalExceptionHandler = createGlobalExceptionHandler();
         LabelNotFoundException ex = new LabelNotFoundException(1L);
 
         ResponseEntity<String> response = globalExceptionHandler.handleLabelNotFoundException(ex);
@@ -108,6 +109,7 @@ public class GlobalExceptionHandlerTest {
 
     @Test
     void testHandleUserDeletionException() {
+        GlobalExceptionHandler globalExceptionHandler = createGlobalExceptionHandler();
         UserDeletionException ex = new UserDeletionException(1L);
 
         ResponseEntity<String> response = globalExceptionHandler.handleUserDeletionException(ex);
@@ -118,6 +120,7 @@ public class GlobalExceptionHandlerTest {
 
     @Test
     void testHandleTaskStatusDeletionException() {
+        GlobalExceptionHandler globalExceptionHandler = createGlobalExceptionHandler();
         TaskStatusDeletionException ex = new TaskStatusDeletionException(1L);
 
         ResponseEntity<String> response = globalExceptionHandler.handleTaskStatusDeletionException(ex);
@@ -128,6 +131,7 @@ public class GlobalExceptionHandlerTest {
 
     @Test
     void testHandleRsaKeyLoadingException() {
+        GlobalExceptionHandler globalExceptionHandler = createGlobalExceptionHandler();
         RsaKeyLoadingException ex = new RsaKeyLoadingException("Error loading key", new RuntimeException());
 
         ResponseEntity<String> response = globalExceptionHandler.handleRsaKeyLoadingException(ex);
@@ -138,6 +142,7 @@ public class GlobalExceptionHandlerTest {
 
     @Test
     void testHandleSentryTestException() {
+        GlobalExceptionHandler globalExceptionHandler = createGlobalExceptionHandler();
         SentryTestException ex = new SentryTestException("Test exception for Sentry");
 
         ResponseEntity<String> response = globalExceptionHandler.handleSentryTestException(ex);
@@ -148,6 +153,7 @@ public class GlobalExceptionHandlerTest {
 
     @Test
     void testHandleGeneralException() {
+        GlobalExceptionHandler globalExceptionHandler = createGlobalExceptionHandler();
         Exception ex = new Exception("General error");
 
         ResponseEntity<String> response = globalExceptionHandler.handleException(ex);
@@ -158,6 +164,7 @@ public class GlobalExceptionHandlerTest {
 
     @Test
     void testHandleLabelDeletionException() {
+        GlobalExceptionHandler globalExceptionHandler = createGlobalExceptionHandler();
         LabelDeletionException ex = new LabelDeletionException(42L);
         ResponseEntity<String> response = globalExceptionHandler.handleLabelDeletionException(ex);
 
