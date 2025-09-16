@@ -7,7 +7,9 @@ import hexlet.code.exception.TaskNotFoundException;
 import hexlet.code.mapper.TaskMapper;
 import hexlet.code.model.Task;
 import hexlet.code.repository.TaskRepository;
+import hexlet.code.specification.TaskSpecification;
 import lombok.AllArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +31,12 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskDTO> getWithFilters(String titleCont, Long assigneeId, String status, Long labelId) {
-        List<Task> tasks = taskRepository.findByFilters(assigneeId, status, labelId, titleCont);
+        Specification<Task> spec = TaskSpecification.withTitleCont(titleCont)
+                .and(TaskSpecification.withAssigneeId(assigneeId))
+                .and(TaskSpecification.withStatus(status))
+                .and(TaskSpecification.withLabelId(labelId));
+
+        List<Task> tasks = taskRepository.findAll(spec);
         return tasks.stream()
                 .map(taskMapper::map)
                 .toList();

@@ -2,25 +2,23 @@ package hexlet.code.controller;
 
 import hexlet.code.exception.SentryTestException;
 import io.sentry.Sentry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 public class SentryTestController {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SentryTestController.class);
 
     private void safeCapture(Throwable ex) {
         try {
             if (Sentry.isEnabled()) {
                 Sentry.captureException(ex);
             } else {
-                LOG.debug("Sentry is disabled; not capturing exception: {}", ex.getMessage());
+                log.debug("Sentry is disabled; not capturing exception: {}", ex.getMessage());
             }
         } catch (Throwable t) {
-            LOG.warn("Failed to capture exception to Sentry: {}", t.getMessage(), t);
+            log.warn("Failed to capture exception to Sentry: {}", t.getMessage(), t);
         }
     }
 
